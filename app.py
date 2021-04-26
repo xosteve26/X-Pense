@@ -104,6 +104,12 @@ def dashboard():
         print("b is ",b)
         cursor.execute('SELECT SUM(amount) AS tsum FROM expense_a WHERE id = % s ', (session['id'], ))
         total=cursor.fetchone()
+        cursor.execute('SELECT MAX(date) AS mxd, MIN(date) AS mnd FROM expense_a WHERE id=% s', (session['id'],))
+        date=cursor.fetchone()
+        session['mxd']=date['mxd']
+        session['mnd']=date['mnd']
+        print(date['mnd'])
+        print("session after date",session)
         session['total'] = int(total['tsum'])
         if b:
 

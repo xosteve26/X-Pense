@@ -11,12 +11,14 @@
 {% endblock header %}
 
 {% block content %}
+            
 
       {% for cat,mes in  get_flashed_messages(with_categories=True) %}
             <div class="alert alert-{{cat}}" role="alert" style="text-align: center;">
               {{mes}}
             </div> 
       {% endfor %}
+      
        <div class="row" style="color:black">
         <div class="col-sm-4">
           <div class="card">
@@ -162,6 +164,7 @@
           </div>
           
         </div>
+        
         <div class="col-sm-4">
             <div class="card">
               <div class="card-body">
@@ -172,6 +175,7 @@
             </div>
 
           </div>
+          
     {% if budget %}
         <div class="container">
           <div class="row">
@@ -209,6 +213,9 @@
           </div> 
         </div>
     {% endif %}
+    <label for="customRange2" class="form-label">Example range</label>
+    <input type="range" value="{{session['mnd']}}"class="form-range" min="{{session['mnd']}}" max="{{session['mxd']}}" id="customRange2">
+            
             <table class="table table-dark table-striped table-hover container" style="color:white">
               <thead>
                 <tr>
@@ -221,7 +228,7 @@
                 </tr>
               </thead>
             
-               
+              
                  {% for each in data %} 
                   
                   <tr id={{each['ex_id']}}>
@@ -321,10 +328,6 @@
          
             
          
-<!-- Button trigger modal -->
-
-
-<!-- Modal -->
 
          
 
