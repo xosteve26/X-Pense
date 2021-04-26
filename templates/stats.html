@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block header %}
+<div class="p-1">
+    <a  style="float:right"type="button" class="btn btn-outline-warning mt-3 mr-3" id="donate" href="/dashboard">DASHBOARD</a>
+    <a  style="float:right"type="button" class="btn btn-outline-success mt-3 mr-3" id="donate" href="/logout">LOGOUT</a>
+    <a  style="float:right"type="button" class="btn btn-outline-primary mt-3 mr-3" id="donate" href="/home">HOME</a>
+    <h1 class="display-4">Statistics</h1>
+    
+</div>
+
+{% endblock header %}
+
+
+{% block content %}
+<hr style="color: white;">
+<div class="container">
+    <div>
+        <h1 class="display-4"> Pie Chart</h1>
+        <!-- <iframe type='text/html' srcdoc="../static/pie.html" width="675" height="450"></iframe> -->
+        <iframe type="text/html" srcdoc="{{html}}" width="620" height="370" ></iframe>
+    </div>
+    <div>
+        <h1 class="display-4"> Bar Graph</h1>
+        <!-- <iframe type='text/html' srcdoc="../static/pie.html" width="675" height="450"></iframe> -->
+        <iframe type="text/html" srcdoc="{{html1}}" width="620" height="370" ></iframe>
+    </div>
+</div>
+
+
+
+
+{% endblock content %}

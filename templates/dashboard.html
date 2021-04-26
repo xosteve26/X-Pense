@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+{% block header %}
+<header>
+  
+    <a  style="float:right"type="button" class="btn btn-outline-success mt-3 mr-3" id="donate" href="/logout">LOGOUT</a>
+    <a  style="float:right"type="button" class="btn btn-outline-primary mt-3 mr-3" id="donate" href="/home">HOME</a>
+    <h1 class="display-4">Dashboard</h1>
+    
+</header>
+   
+{% endblock header %}
+
+{% block content %}
+
+      {% for cat,mes in  get_flashed_messages(with_categories=True) %}
+            <div class="alert alert-{{cat}}" role="alert" style="text-align: center;">
+              {{mes}}
+            </div> 
+      {% endfor %}
+       <div class="row" style="color:black">
+        <div class="col-sm-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Add Expenses</h5>
+              <p class="card-text">Click on the button below to add your daily expenses.</p>
+              
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#st">Add</button>
+
+                <div class="modal fade bd-example-modal-lg" id="st"tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Add Expense</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form action="/aexpense" method='POST'>
+                          <div class="form-group">
+                            <label for="recipient-name"  class="col-form-label">Amount:</label>
+                            <input type="number" name="am" class="form-control" id="recipient-name" placeholder="$" required>
+                          </div>
+                          <div class="form-group">
+                              <label for="message-text" class="col-form-label">Category:</label>
+                              
+                              <select name='categ' id="inputState" class="form-control" required>
+                                <option selected>Choose...</option>
+                                <option>Food</option>
+                                <option>Groceries</option>
+                                <option>Utilities</option>
+                                <option>Dining</option>
+                                <option>Shopping</option>
+                                <option>Travel</option>
+                                <option>Entertainment</option>
+                                <option>Other</option>
+                              </select>   
+                          </div>
+                          <div class="form-group">
+                            <label for="recipient-name" class="col-form-label">Date:</label>
+                            <input type="date" name="date" class="form-control" id="recipient-name" placeholder="$" required>
+                          </div>
+                          <div class="form-group">
+                            <label for="recipient-name" class="col-form-label">Description:</label>
+                            <input type="text" name="desc" class="form-control" id="recipient-name"  placeholder="" required>
+                          </div>
+                          
+                          <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                              <button type="submit" class="btn btn-primary" >Set</button>
+                          </div>
+                        </form>
+                      </div>
+                      
+                      
+                      ...
+                    </div>
+                  </div>
+                </div>
+                 
+              
+              
+              
+              
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-4 mb-sm-5">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Budget</h5>
+              <p class="card-text">Please set your budget here. </p>
+              {% if session['budget'] %}
+                  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateModal" data-whatever="@mdo">Update</button>
+                  <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Update Budget</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <form action="/updatebudget" method='POST'>
+                            <div class="form-group">
+                              <label for="recipient-name" class="col-form-label">Current Amount:</label>
+                              <input type="number" name="currentbudget" class="form-control" id="recipient-name" placeholder="$ {{session['budget']}}">
+                            </div>
+                            <div class="form-group">
+                              <label for="recipient-name" class="col-form-label">New Amount:</label>
+                              <input type="number" name="updatebudget" class="form-control" id="recipient-name" placeholder="$ ">
+                            </div>
+                            <div class="form-group">
+                              <label for="message-text" class="col-form-label">Description:</label>
+                              <textarea class="form-control" id="message-text"></textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Update</button>
+                            </div>
+                          </form>
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+              {%else%}
+                  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">Create</button>
+                  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Set Budget</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <form action="/setbudget" method='POST'>
+                            <div class="form-group">
+                              <label for="recipient-name" class="col-form-label">Amount:</label>
+                              <input type="number" name="budget" class="form-control" id="recipient-name" placeholder="$">
+                            </div>
+                            <div class="form-group">
+                              <label for="message-text" class="col-form-label">Description:</label>
+                              <textarea class="form-control input-lg" id="message-text"></textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Set</button>
+                            </div>
+                          </form>
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+              {% endif %}
+              
+            </div>
+          </div>
+          
+        </div>
+        <div class="col-sm-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title" >Statistics</h5>
+                <p class="card-text">Click the button below to view the garphical representation of your expenses  .</p>
+                <a href="/statistics" class="btn btn-primary">View</a>
+              </div>
+            </div>
+
+          </div>
+    {% if budget %}
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card text-white bg-info mb-3" style="max-width: 18rem; text-align: center;">
+                  <div class="card-header"> <h5>Budget</h5> </div>
+                  <div class="card-body">
+                      <h5 class="card-title">Your total budget is :</h5>
+                    <p class="card-text"><h1 class="display-4 "> ${{budget}}</h1></p>
+                  </div>
+                </div> 
+            </div>
+            {% if total < budget %}
+                <div class="col-lg-6 mb-4">
+                      <div class="card text-white bg-success mb-3" style="max-width: 18rem;float: right;text-align: center;">
+                        <div class="card-header"><h5>Expenses</h5></div>
+                        <div class="card-body">
+                          <h5 class="card-title">Your total expenses are :</h5>
+                          <p class="card-text"> <h1 class="display-4">${{total}}</h1></p>
+                        </div>
+                      </div>
+                </div>
+            {% else %}
+                <div class="col-lg-6 mb-4">
+                  <div class="card text-white bg-danger mb-3" style="max-width: 18rem;float: right;">
+                    <div class="card-header">Expenses : WARNING</div>
+                    <div class="card-body">
+                        
+                      <h5 class="card-title">You have excceeded your budget </h5>
+                      <p class="card-text"> <h1 class="display-4">${{total}}</h1></p>
+                    </div>
+                  </div>
+                </div>
+             {% endif %}   
+          </div> 
+        </div>
+    {% endif %}
+            <table class="table table-dark table-striped table-hover container" style="color:white">
+              <thead>
+                <tr>
+                  <th scope="col" >Sl.No</th>
+                  <th scope="col">Amount</th>
+                  <th scope="col">Category</th>
+                  <th scope="col">Date</th>
+                  <th scope="col">Description</th>
+                  
+                </tr>
+              </thead>
+            
+               
+                 {% for each in data %} 
+                  
+                  <tr id={{each['ex_id']}}>
+                      <td>{{ each['ex_id'] }}</td>
+                      <td>${{ each['amount'] }}</td>
+                      <td>{{each['category']}}</td>
+                      <td>{{each['date']}}</td>
+                      <td>{{each['description']}}</td>
+          
+                      <td>
+                        <a href='/uexpense/{{each['ex_id']}}' class="btn btn-outline-primary" data-toggle="modal" data-target="#myModal{{each['ex_id']}}" id={{each['ex_id']}}>Modify</a>
+                        |
+                        <form style="display: inline;" action='/delete' method='POST'>
+                          <input value={{each['ex_id']}} name="del" style="display: none;">
+                          <button type="submit" class="btn btn-outline-danger">Delete</button>
+                        </form>
+                        <!-- <button type="submit" class="btn btn-outline-primary" data-toggle="modal" data-target="#myModal" id={{each['ex_id']}}>Modify </button> -->
+                      </td>
+                  </tr>
+               
+<div class="modal fade" id="myModal{{each['ex_id']}}">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+              
+        <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Update Expense</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <form action="{{url_for('uexpense',id=each['ex_id']) }}" method='POST'>
+          <div class="form-group">
+            <label for="recipient-nameup"  class="col-form-label">Current Amount:</label>
+            <input type="text" readonly name="old_amount" class="form-control" id="recipient-name" value=${{each['amount']}}>
+            <label for="recipient-nameup"  class="col-form-label"> Update Amount:</label>
+            <input type="number" name="nam" class="form-control" id="recipient-nameup" 
+                  placeholder="$" required>
+          </div>
+          <div class="form-group">
+            <label for="message-text" class="col-form-label">Category:</label>
+
+            <select name='ncateg' id="inputState" class="form-control" required>
+              <option selected>{{each['category']}}</option>
+              <option>Food</option>
+              <option>Groceries</option>
+              <option>Utilities</option>
+              <option>Dining</option>
+              <option>Shopping</option>
+              <option>Travel</option>
+              <option>Entertainment</option>
+              <option>Other</option>
+            </select>   
+          </div>
+          <div class="form-group">
+            <label for="recipient-name" class="col-form-label"> Current Date:</label>
+            <input type="text" readonly name="old_date" class="form-control" id="recipient-name" placeholder={{each['date']}}>
+            <label for="recipient-name" class="col-form-label">Date:</label>
+            <input type="date" name="ndate" class="form-control" id="recipient-name" required>
+          </div>
+          <div class="form-group">
+            <label for="recipient-name" class="col-form-label">Description:</label>
+            <input type="text" name="ndesc" class="form-control input-lg" id="recipient-name" placeholder={{each['description']}} required >
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary" >Update</button>
+        </div>
+        </form>
+      </div>
+      
+    </div>
+  </div>
+</div>            
+
+               
+               
+               
+               
+               
+               
+               
+               
+               
+               
+               
+               
+               
+               
+               
+                  {% endfor %}
+            
+            </table>
+         
+            
+         
+<!-- Button trigger modal -->
+
+
+<!-- Modal -->
+
+         
+
+
+      
+            
+{% endblock content %}
+
+
+
