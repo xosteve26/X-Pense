@@ -39,6 +39,10 @@ mysql = MySQL(app)
 @app.route('/home')
 @app.route('/')
 def home():
+    if session['id']:
+        session['loggedin']=True
+    else:
+        session['loggedin']=False
     print("session at home", session)
     return render_template('main.html')
 
@@ -59,6 +63,8 @@ def register():
             cursor.execute('INSERT INTO user VALUES (NULL, % s, % s, % s)', (username, password, email, ))
             mysql.connection.commit()
             msg = 'You have successfully registered !'
+            session['loggedin']=False
+            
             print("session at register else" ,session)
             return render_template('main.html', msg=msg)
 
@@ -93,18 +99,64 @@ def login():
 @app.route('/dashboard', methods=['GET','POST'])
 def dashboard():
     wa=''
-    print(session)
-    if session:
+    print("initial dash session",session)
+    month=["January","February","March","April","May","June","July","August","September","October","November","December"]
+    
+    
+    if session['loggedin']:
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a WHERE id = % s', (session['id'], ))
-        data=cursor.fetchall()
-        print(data)
-        cursor.execute('SELECT bamount FROM budget WHERE id = % s' , (session['id'], ))
-        b=cursor.fetchone()
-        print("b is ",b)
-        cursor.execute('SELECT SUM(amount) AS tsum FROM expense_a WHERE id = % s ', (session['id'], ))
-        total=cursor.fetchone()
-        session['total'] = int(total['tsum'])
+        try:
+        
+            cursor.execute("SELECT b_month FROM budget WHERE id=%s", (session['id'],))
+            b_m=cursor.fetchone()
+            b_m['b_month']=b_m['b_month'].split('-')[1]
+            session['b_m']=b_m['b_month']
+            print(b_m)
+        except:
+            pass
+        data=[]
+        try:
+            cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a WHERE id = % s AND monthname(date)=%s', (session['id'], session['b_m'] ))
+            data=cursor.fetchall()
+            print("data",data)
+        except KeyError:
+            pass
+       
+        try:
+
+            cursor.execute('SELECT bamount FROM budget WHERE id = % s', (session['id'], ))
+            b=cursor.fetchone()
+            print("b is ",b)
+        except TypeError:
+            b={'bamount': 0}
+        
+        try:
+
+            cursor.execute('SELECT SUM(amount) AS tsum FROM expense_a WHERE id = % s AND monthname(date)=%s', (session['id'], session['b_m']))
+            total=cursor.fetchone()
+            print("total",total)
+        except KeyError:
+            total={'tsum':0}
+
+       
+        #cursor.execute("SELECT  DATE_FORMAT(date,'%M') AS dt  FROM expense_a ")
+        #dt=cursor.fetchall()
+        #print(dt)
+
+        cursor.execute("SELECT DISTINCT MONTHNAME(date) AS 'dt' FROM expense_a WHERE id=%s ", (session['id'],))
+        d_m=cursor.fetchall()
+        l=[]
+        for i in d_m:
+            l.append(i['dt'])
+        session['d_m']=l
+        print("dm is ",l)
+
+        #cursor.execute('SELECT MAX(date) AS mxd, MIN(date) AS mnd FROM expense_a WHERE id=% s', (session['id'],))
+        #date=cursor.fetchone()
+        #session['mxd']=date['mxd']
+        #session['mnd']=date['mnd']
+        #print(date['mnd'])
+        #print("session after date",session)    
         if b:
 
             session['budget']=b['bamount']
@@ -113,27 +165,64 @@ def dashboard():
         else:
             flash(u"Please Set Budget First","primary")
             print("session at dashboard else" ,session)
-            return render_template('dashboard.html')
+            return render_template('dashboard.html',month=month)
         if data:
             flash(u"Wecome back {}".format(session['username']) , "primary")
             print("session at dashboard if data" ,session)
-            return render_template('dashboard.html', data=data,budget=int(bud), total=int(total['tsum']))
+            return render_template('dashboard.html', data=data,budget=bud, total=int(total['tsum']),month=month,d_m=session['d_m'])
         else:
             flash(u"Please Add Expenses","primary")
+        if (total['tsum'] == None):
+            return render_template('dashboard.html',total=0,budget=bud,month=month,d_m=session['d_m'])
+        else:
+            session['total'] = int(total['tsum'])
         
         return render_template('dashboard.html')
-    else:
-        wa="Please Login First"
-        return render_template('main.html',wa=wa)
     
+    else:
+        wa='Please login first'       
+        return render_template('main.html', wa=wa)
+@app.route('/switchmonth/<string:mon>', methods=['GET','POST'])   
+def switch_month(mon):
+    print(session)
+    month=["January","February","March","April","May","June","July","August","September","October","November","December"]
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    session['b_m']=mon
+    print(" mon is ",mon)
+    cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a WHERE id = % s AND monthname(date)=%s', (session['id'], mon ))
+    data=cursor.fetchall()
+    print(data)
+    cursor.execute('SELECT bamount FROM budget WHERE id=%s AND b_month LIKE %s', (session['id'], '2021-'+mon,))
+    b=cursor.fetchone()
+    print("b is ",b)
+    cursor.execute('SELECT SUM(amount) AS tsum FROM expense_a WHERE id = % s AND monthname(date)=%s', (session['id'], mon))
+    total=cursor.fetchone()
+    print("total",total)
+    cursor.execute("SELECT DISTINCT MONTHNAME(date) AS 'dt' FROM expense_a WHERE id=%s ", (session['id'],))
+    d_m=cursor.fetchall()
+    l=[]
+    for i in d_m:
+        l.append(i['dt'])
+    session['d_m']=l
+    print("dm is ",l)
+    session['budget']=b['bamount']
+    bud=session['budget']
+    print(session['budget'])
+    return render_template('dashboard.html',data=data,budget=bud, total=int(total['tsum']),month=month,d_m=session['d_m'])
+
 
 @app.route('/setbudget', methods=['GET','POST'])
 def budget():
-    print(session['id'])
+    print("budget",session)
     budget=request.form['budget']
     b_id=session['id']
+    b_y = request.form['b_y']
+    b_m = request.form['b_m']
+    session['b_m']=b_m
+    m=b_y+"-"+b_m
+    print("month and year is ",b_y,b_m)
     cursor = mysql.connection.cursor()
-    cursor.execute('INSERT INTO budget VALUES (NULL,%s, % s)', (b_id,budget, ))
+    cursor.execute('INSERT INTO budget VALUES (NULL,%s, %s, %s)', (b_id,budget,m, ))
     mysql.connection.commit()
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute('SELECT * FROM budget WHERE id = % s AND bamount = % s', (b_id, budget ))
@@ -141,7 +230,7 @@ def budget():
     session['budget']=account['bamount']  
     flash(u"Budget has been set, Now you can proceed to adding expenses","primary")
     print("session at budget " ,session)
-    return render_template('dashboard.html', budget=session['budget'], total=0)
+    return render_template('dashboard.html', budget=session['budget'], total=0, b_m=session['b_m'],)
 
 
 @app.route('/updatebudget', methods=['POST'])
@@ -156,36 +245,47 @@ def updatebudget():
 
 @app.route('/aexpense', methods=['GET','POST'])
 def expense():
-    print(session)
+    print("expense session",session)
     e_id=session['id']
     amount=request.form['am']
     category=request.form['categ']
     date=request.form['date']
     description=request.form['desc']
     cursor = mysql.connection.cursor()
-    cursor.execute('INSERT INTO expense_a VALUES (NULL,%s, % s,%s,%s,%s)', (e_id,amount,category,date,description, ))
+    print("before commit")
+    cursor.execute('INSERT INTO expense_a VALUES(NULL,%s,%s,%s,%s,%s)', (e_id,amount,category,date,description, ))
     mysql.connection.commit()
+    print("commit done")
     cursor.execute('SELECT SUM(amount) AS tsum FROM expense_a WHERE id = % s ', (e_id, ))
     ac=cursor.fetchone()
+    print("ac is ",ac)
+    print("sum done")
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute('SELECT bamount FROM budget WHERE id = % s ', (e_id, ))
     bud=cursor.fetchone()
     if int(ac[0]) > int(bud['bamount']) :
         wa="Warning : You've exceeded your budget"
-        
-        
-    cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a WHERE id = % s', (session['id'], ))
+    print(session)    
+    print("before data")   
+    cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a WHERE id = %s AND monthname(date)=%s', (session['id'], session['b_m'] ))
     data=cursor.fetchall()
-    cursor.execute('SELECT SUM(amount) AS tsum FROM expense_a WHERE id = % s ', (session['id'], ))
+    print("after data",data)
+    print("before totoal")
+    cursor.execute('SELECT SUM(amount) AS tsum FROM expense_a WHERE id = %s AND monthname(date)=%s ', (session['id'],session['b_m'], ))
     total=cursor.fetchone()
+    if total['tsum'] == None:
+        total['tsum']=0
+    print("total aex",total)
     bud=session['budget']
+    print("bud at expense ", bud)
     if data:
             flash("Expense has been added","success")
+        
             print("session at aexpense if data" ,session)
             return render_template('dashboard.html', data=data,budget=int(bud), total=int(total['tsum']))
     msg='Expense has been added'
     print("session at dashbaord final" ,session)
-    return render_template('dashboard.html',msg=msg)
+    return render_template('dashboard.html',msg=msg ,data=data,budget=int(bud), total=int(total['tsum']))
 
 @app.route('/uexpense/<string:id>', methods=['GET','POST'])
 def uexpense(id):
@@ -287,10 +387,17 @@ def statistics():
 
 @app.route('/logout')
 def logout():
-   session.pop('loggedin', None)
+   
    session.pop('id', None)
    session.pop('username', None)
    session.pop('budget', None)
+   session.pop('total', None)
+   session.pop('mnd', None)
+   session.pop('mxd', None)
+   session.pop('new_user', None)
+   session.pop('b_m', None)
+   session.pop('d_m', None)
+   session['loggedin']=False
    print(session)
    msg='You have been logged out successfully'
 
