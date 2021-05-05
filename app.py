@@ -142,9 +142,7 @@ def login():
 def dashboard():
     wa=''
     print("initial dash session",session)
-    month=["January","February","March","April","May","June","July","August","September","October","November","December"]
-    
-    
+
     if session['loggedin']:
         session['s_m']=None
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -348,7 +346,7 @@ def expense():
                         subject='WARNING: Exceeded Budget',
                         html_content='<h1>X-PENSE TRACKER</h1> <h3> Dear'+' '+ session['username'] + '</h3> <p style="color:red"> You have exceeded your monthly budget of amount'+' '+str(session['budget'])+ ', For the month of'+' '+session['s_m']+'.</p><br>You current expenses are worth:'+session['total']+'<p>Yours Truely,<br>ABC</p>')
                 try:
-                    sg = SendGridAPIClient('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')
+                    sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
                     response = sg.send(message)
                     print(response.status_code)
                     print(response.body)
@@ -467,7 +465,7 @@ def email_transaction():
     )
     message.attachment = attachedFile
 
-    sg = SendGridAPIClient('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')
+    sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
     response = sg.send(message)
     print(response.status_code, response.body, response.headers)
     flash(u"E-mail has been sent","success")
