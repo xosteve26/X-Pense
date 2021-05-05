@@ -1,7 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="shortcut icon" href="{{ url_for('static',filename='favicon.ico') }}">
+    
+    {% block navbar %}
+                <header>
+                    
+                    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                        <a class="navbar-brand" href="/home">X-Pense Tracker</a>
+                        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                        </button>
+                    
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item active">
+                            <a class="nav-link" href="/home">Home <span class="sr-only">(current)</span></a>
+                            </li>
+                            <li class="nav-item">
+                            <a class="nav-link" href="/register">Register</a>
+                            </li>
+                            <li class="nav-item">
+                            <a class="nav-link" href="/dashboard">Dashboard</a>
+                            </li>
+                            
+                            <li class="nav-item">
+                            <a class="nav-link disabled" href="#">Disabled</a>
+                            </li>
+                        </ul>
+                        <nav class="navbar navbar-dark bg-dark">
+                            <form class="form-inline" action="/login" method="POST">
+                            <div class="input-group">
+                                <div class="input-group-prepend">    
+                                    </div>
+                                    {% if msg=="Account doesn't not exist" %}
+                                        <div style="color:red" class="mr-3 mt-2">{{ msg }}</div>
+                                    {% else %}
+                                        <div style="color:green" class="mr-3 mt-2">{{ msg }}</div>
+                                    {% endif %}
+                                    {% if session['id'] %}
+                                        <!-- <a  type="button" class="btn btn-outline-success mt-3 mr-3" id="donate" href="/logout">LOGOUT</a> -->
+                                        <button  type="button" class="btn btn-warning mt-3 mr-3" id="donate" > Username : {{session['username']}}</button>
+                                        <a  style="float:right"type="button" class="btn btn-outline-primary mt-3 mr-3" id="donate" href="/home">HOME</a>
+                                        <a  style="float:right"type="button" class="btn btn-outline-success mt-3 mr-3" id="donate" href="/logout">LOGOUT</a>
+                                        
+                                    {% else %}
+                                        <input type="text" name='username' class="form-control mr-sm-2" placeholder="Username" aria-label="uname" aria-describedby="basic-addon1"><br>
+                                        <input type="password" name='password' class="form-control mr-sm-2" placeholder="Password" aria-label="password" aria-describedby="basic-addon1">
+                                        <button class="btn btn-outline-success mr-sm-2" type="submit">Login</button>
+                                    {% endif %}
+                                    </div>
+                            </form>
+                        </nav>
+                        </div>
+                    </nav>
+            </header>
+    {% endblock navbar %}
     {% block header %}
+    
     {% endblock header %}
     
     
@@ -9,6 +65,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expense App</title>
+    
+ 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
@@ -24,9 +82,10 @@
         <!-- font styles cdn -->
         <link rel="preconnect" href="https://fonts.gstatic.com">
         <link href="https://fonts.googleapis.com/css2?family=Alegreya&display=swap" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
         <link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@600&display=swap" rel="stylesheet">
 </head>
-<body style="background-color: #292b2c;color: white;scroll-behavior: smooth;" class="container">
+<body style="background-color: #292b2c;color: white;scroll-behavior: smooth;" class="container-fluid">
     {% block content %}
     {% endblock %}
 </body>
