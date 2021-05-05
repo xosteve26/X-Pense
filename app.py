@@ -326,6 +326,8 @@ def expense():
   
     cursor.execute('SELECT SUM(amount) AS tsum FROM expense_a WHERE id = %s AND monthname(date)=%s ', (session['id'],session['b_m'], ))
     total=cursor.fetchone()
+    print("total is",total)
+    session['total']=str(total['tsum'])
    
     
     if total['tsum'] == None:
@@ -337,14 +339,14 @@ def expense():
 
         if data:
             if session['s_m']:
-                flash("Expense has been added","success")
+                flash(u"Expense has been added","success")
                 print("session at aexpense if data" ,session)
                 if (total['tsum']>bud):
                     message = Mail(
                         from_email='noreplyflaskblog1@gmail.com',
                         to_emails=session['email'],
                         subject='WARNING: Exceeded Budget',
-                        html_content='<h1>X-PENSE TRACKER</h1> <h3> Dear'+' '+ session['username'] + '</h3> <p style="color:red"> You have exceeded your monthly budget of amount'+' '+str(session['budget'])+ ', For the month of'+' '+session['s_m']+'.</p><p>Yours Truely,<br>ABC</p>')
+                        html_content='<h1>X-PENSE TRACKER</h1> <h3> Dear'+' '+ session['username'] + '</h3> <p style="color:red"> You have exceeded your monthly budget of amount'+' '+str(session['budget'])+ ', For the month of'+' '+session['s_m']+'.</p><br>You current expenses are worth:'+session['total']+'<p>Yours Truely,<br>ABC</p>')
                 try:
                     sg = SendGridAPIClient('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')
                     response = sg.send(message)
@@ -356,7 +358,7 @@ def expense():
                 #return render_template('dashboard.html', data=data,budget=int(bud), total=int(total['tsum']))
                 return redirect(url_for('switch_month',mon=session['s_m'],data=data,budget=int(bud), total=int(total['tsum'])))
             else:
-                flash("Expense has been added","success")
+                flash(u"Expense has been added","success")
                 print("session at aexpense if data" ,session)
                 #return render_template('dashboard.html', data=data,budget=int(bud), total=int(total['tsum']))
                 return redirect(url_for('switch_month',mon=session['b_m'],data=data,budget=int(bud), total=int(total['tsum'])))
@@ -437,10 +439,10 @@ def email_transaction():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute('SELECT email FROM user WHERE id=%s',(session['id'],))
     em=cursor.fetchone()
-    cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a WHERE id =%s AND monthname(date)=%s ',(session['id'],session['s_m'],))
+    cursor.execute('SELECT amount,category,date,description FROM expense_a WHERE id =%s AND monthname(date)=%s ',(session['id'],session['s_m'],))
     result=cursor.fetchall()
     df=pd.DataFrame(result)
-    df_update=df.rename(columns={'ex_id':'EX_ID','amount':'Amount','category':'Category','date':'Date','description':'Description'})
+    df_update=df.rename(columns={'amount':'Amount','category':'Category','date':'Date','description':'Description'})
     
     df_update.to_csv(r'transaction.csv',index=False)
 
@@ -465,7 +467,7 @@ def email_transaction():
     )
     message.attachment = attachedFile
 
-    sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+    sg = SendGridAPIClient('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')
     response = sg.send(message)
     print(response.status_code, response.body, response.headers)
     flash(u"E-mail has been sent","success")

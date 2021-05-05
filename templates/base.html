@@ -3,7 +3,7 @@
 <head>
     <link rel="shortcut icon" href="{{ url_for('static',filename='favicon.ico') }}">
     
-    {% block navbar %}
+ 
                 <header>
                     
                     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -24,9 +24,7 @@
                             <a class="nav-link" href="/dashboard">Dashboard</a>
                             </li>
                             
-                            <li class="nav-item">
-                            <a class="nav-link disabled" href="#">Disabled</a>
-                            </li>
+                            
                         </ul>
                         <nav class="navbar navbar-dark bg-dark">
                             <form class="form-inline" action="/login" method="POST">
@@ -55,7 +53,6 @@
                         </div>
                     </nav>
             </header>
-    {% endblock navbar %}
     {% block header %}
     
     {% endblock header %}
@@ -80,6 +77,8 @@
         <!-- css stylesheet -->
         <link rel="stylesheet" href="css/style.css">
         <!-- font styles cdn -->
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=PT+Sans&display=swap" rel="stylesheet">
         <link rel="preconnect" href="https://fonts.gstatic.com">
         <link href="https://fonts.googleapis.com/css2?family=Alegreya&display=swap" rel="stylesheet">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
