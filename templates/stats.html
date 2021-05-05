@@ -33,16 +33,16 @@
     <div class="col-lg-12 " >
       <section class="panel">
         <header class="panel-heading">
-          <h3>General Chart</Char>
+          <h3>Charts</Char>
               </header>
               <div class="panel-body">
                 <div class="tab-pane" id="chartjs">
               <div class="row">
                   <!-- Line -->
-                  <div class="col-lg-6">
-                      <section class="panel" style="background-color: #292b2c;">
+                  <div class="col-lg-6" style="border:1px solid#6600FF ;">
+                      <section class="panel" style="background-color:  #292b2c;">
                         <header class="panel-heading">
-                            Line Graph
+                            
                         </header>
                         <div class="panel-body text-center">
                             <canvas id="myChartline" height="300" width="450"></canvas>
@@ -50,10 +50,10 @@
                     </section>
                   </div>
                   <!-- Bar -->
-                  <div class="col-lg-6">
-                      <section class="panel" style="background-color: #292b2c;">
+                  <div class="col-lg-6" style="border:1px solid#6600FF ;">
+                      <section class="panel" style="background-color:  #292b2c;">
                         <header class="panel-heading">
-                            Bar Graph
+                      
                         </header>
                         <div class="panel-body text-center">
                             <canvas id="myChartbar" height="300" width="450"></canvas>
@@ -63,10 +63,10 @@
               </div>
               <div class="row">
                   <!-- Radar -->
-                  <div class="col-lg-6">
+                  <div class="col-lg-6" style="border:1px solid #6600FF ;">
                       <section class="panel" style="background-color: #292b2c;">
                         <header class="panel-heading">
-                            Radar Graph
+                           
                         </header>
                         <div class="panel-body text-center">
                             <canvas id="myChartradar" height="300" width="450"></canvas>
@@ -74,10 +74,10 @@
                     </section>
                   </div>
                   <!-- Polar Area -->
-                  <div class="col-lg-6">
-                      <section class="panel" style="background-color: #292b2c;">
+                  <div class="col-lg-6" style="border:1px solid #6600FF ;">
+                      <section class="panel" style="background-color:  #292b2c;">
                         <header class="panel-heading">
-                            Polar Graph
+                      
                         </header>
                         <div class="panel-body text-center">
                             <canvas id="myChartpolar" height="300" width="450"></canvas>
@@ -88,10 +88,10 @@
               <div class="row">
 
                   <!-- Pie -->
-                  <div class="col-lg-6">
+                  <div class="col-lg-6" style="border:1px solid #6600FF ;">
                       <section class="panel" style="background-color: #292b2c;">
                         <header class="panel-heading">
-                            Pie Graph
+                        
                         </header>
                         <div class="panel-body text-center">
                             <canvas id="myChartpie" height="300" width="450"></canvas>
@@ -99,10 +99,10 @@
                     </section>
                   </div>
                   <!-- Doughnut -->
-                  <div class="col-lg-6">
-                      <section class="panel" style="background-color: #292b2c;">
+                  <div class="col-lg-6" style="border:1px solid #6600FF ;">
+                      <section class="panel" style="background-color:  #292b2c;">
                         <header class="panel-heading">
-                            Doughnut Graph
+                          
                         </header>
                         <div class="panel-body text-center">
                             <canvas id="myChartdoughnut" height="300" width="450"></canvas>
@@ -128,6 +128,9 @@
       var co = JSON.parse('{{col | tojson | safe}}');
       var s_ro = JSON.parse('{{s_r | tojson | safe}}');
       var s_co = JSON.parse('{{s_c | tojson | safe}}');
+      var gradientFill = myChart.createLinearGradient(0, 0, 0, 290);
+      gradientFill.addColorStop(0, "rgba(173, 53, 186, 1)");
+      gradientFill.addColorStop(1, "rgba(173, 53, 186, 0.1)");
       console.log(ro);
       console.log(co);
       console.log(s_ro);
@@ -170,7 +173,7 @@
               }]},
           title:{
             display:true,
-            text:'Expenses',
+            text:'Bar Chart',
             fontColor:'#FFF',
             fontSize:25
           },
@@ -220,7 +223,7 @@
         options:{
           title:{
             display:true,
-            text:'Expenses',
+            text:'Pie Chart',
             fontColor:'#FFF',
             fontSize:25
           },
@@ -249,7 +252,7 @@
         data:{
           labels:ro,
           datasets:[{
-            label:'Population',
+   
             data:co,
             //backgroundColor:'green',
             backgroundColor:[
@@ -270,7 +273,7 @@
         options:{
           title:{
             display:true,
-            text:'Expenses',
+            text:'Doughnut Chart',
             fontColor:'#FFF',
             fontSize:25
           },
@@ -294,6 +297,7 @@
           }
         }
       });
+      
       let lineChart = new Chart(myChartline, {
         type:'line', // bar, horizontalBar, pie, line, doughnut, radar, polarArea
         data:{
@@ -302,18 +306,20 @@
             fill:true,
             data:s_co,
             tension:0.1,
-            backgroundColor:'#BB8FCE',
+            backgroundColor:gradientFill,
             borderWidth:1,
-            borderColor:'#777',
+            borderColor:'#AD35BA',
             hoverBorderWidth:3,
-            hoverBorderColor:'#000'
+            hoverBorderColor:'#000',
+            pointBorderColor: "#fff",
+            pointBackgroundColor: "rgba(173, 53, 186, 0.1)",
           }]
         },
         options:{
           title:{
             display:true,
-            text:'Expenses',
-            fontColor:'#FFF',
+            text:'Line graph for expenses over all budget months',
+            fontColor:'#BA68C8',
             fontSize:25
           },
           legend:{
@@ -362,7 +368,7 @@
         options:{
           title:{
             display:true,
-            text:'Expenses',
+            text:'Polar Chart',
             fontColor:'#FFF',
             fontSize:25
           },
@@ -391,7 +397,7 @@
         data:{
           labels:ro,
           datasets:[{
-            label:'Population',
+            
             data:co,
             //backgroundColor:'green',
             backgroundColor:[
@@ -412,7 +418,7 @@
         options:{
           title:{
             display:true,
-            text:'Expenses',
+            text:'Radar Chart',
             fontColor:'#FFF',
             fontSize:25
           },
