@@ -1,13 +1,25 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <link rel="shortcut icon" href="{{ url_for('static',filename='favicon.ico') }}">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
         <link rel="stylesheet" href="css/style.css">
         
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    </head>
+        <!-- Font Awesome -->
+        <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+        rel="stylesheet"
+        />
+        <!-- Google Fonts -->
+        <link
+        href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+        rel="stylesheet"
+        />
+        
+      </head>
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <a class="navbar-brand" href="/home">X-Pense Tracker</a>
@@ -42,6 +54,8 @@
                             <div style="color:green" class="mr-3 mt-2">{{ msg }}</div>
                           {% endif %}
                           {% if session['id'] %}
+                              <button  type="button" class="btn btn-warning mt-3 mr-3" id="donate" > Username : {{session['username']}}</button>
+                              
                               <a  type="button" class="btn btn-outline-success mt-3 mr-3" id="donate" href="/logout">LOGOUT</a>
                           {% else %}
                             <input type="text" name='username' class="form-control mr-sm-2" placeholder="Username" aria-label="uname" aria-describedby="basic-addon1"><br>
@@ -57,14 +71,114 @@
     <div style="color:red" class="mr-3 mt-2">{{ wa }}</div>
     <body style="background-color: #292b2c;">
         <div class="jumbotron">
-            <h1 class="display-4">Expense Tracker</h1>
-            <p class="lead">This is a small expense tracker, please Login/Register to manage your expenses</p>
-            <hr class="my-4">
-            <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
-            <p class="lead">  
-                <a class="btn btn-outline-primary btn-lg" href="/register" role="button">Register</a>
-                {{sample}}
-            </p>
+          
+
+              <h1 class="display-4">Expense Tracker</h1>
+              {% if session['loggedin'] %}
+                <p class="lead">Welcome to a whole new atmosphere of expense management {{session['username']}}</p>
+                <hr class="my-4">
+                <p>Please click on the button below to go to you dahsboard.</p>
+                <p class="lead">  
+                    <a class="btn btn-outline-primary btn-lg" href="/dashboard" role="button">Dashboard</a>
+                    {{sample}}
+                </p>
+                
+              {% else %}
+                
+                <p class="lead">This is a small expense tracker, please Login/Register to manage your expenses</p>
+                <hr class="my-4">
+                <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
+                <p class="lead">  
+                    <a class="btn btn-outline-primary btn-lg" href="/register" role="button">Register</a>
+                    {{sample}}
+                </p>
+              {% endif %}
+                
+              
+              
           </div>
     </body>
+    <footer class="bg-dark text-center text-white">
+      <!-- Grid container -->
+      <div class="container p-4 ">
+        <div class="row">
+          <!--Grid column-->
+          <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+            <h5 class="text-uppercase">Contact Info :</h5>
+  
+            <p>
+              E-Mail:
+              <br>
+              Phone Number :
+              <br>
+              Website:
+              <br>
+              Address:
+            </p>
+          </div>
+          <!--Grid column-->
+  
+          <!--Grid column-->
+          <div class="col-lg-6 col-md-6 mb-6 mb-md-0">
+            <h5 class="text-uppercase">Links</h5>
+  
+            <ul class="list-unstyled mb-0">
+              <li>
+                <a href="#!" class="text-white">abc@gmail.com</a>
+              </li>
+              <li>
+                <a href="#!" class="text-white">+91-8796567896</a>
+              </li>
+              <li>
+                <a href="https://www.youtube.com/" class="text-white" target="_blank">www.xyz.com</a>
+              </li>
+              <li>
+                <a href="#!" class="text-white">Link 4</a>
+              </li>
+            </ul>
+          </div>
+      </div>
+        <!-- Section: Social media -->
+        <section class="mb-4">
+          <!-- Facebook -->
+          <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"
+            ><i class="fab fa-facebook-f"></i
+          ></a>
+    
+          <!-- Twitter -->
+          <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"
+            ><i class="fab fa-twitter"></i
+          ></a>
+    
+          <!-- Google -->
+          <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"
+            ><i class="fab fa-google"></i
+          ></a>
+    
+          <!-- Instagram -->
+          <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"
+            ><i class="fab fa-instagram"></i
+          ></a>
+    
+          <!-- Linkedin -->
+          <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"
+            ><i class="fab fa-linkedin-in"></i
+          ></a>
+    
+          <!-- Github -->
+          <a class="btn btn-outline-light btn-floating m-1" href="https://github.com/xosteve26" role="button" target="_blank">
+          <i class="fab fa-github"></i>
+          </a>
+        </section>
+        <!-- Section: Social media -->
+      </div>
+      <!-- Grid container -->
+    
+      <!-- Copyright -->
+      <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+        © 2021 Copyright:
+        <a class="text-white" href="https://mdbootstrap.com/">X-Pense Tracker</a>
+      </div>
+      <!-- Copyright -->
+    </footer>
 </html>

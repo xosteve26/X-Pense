@@ -1,25 +1,27 @@
 
-from flask import Flask, render_template, request, redirect, url_for, session,flash
+from flask import Flask, render_template, request, redirect, url_for, session,flash, Response,json
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
 from math import pi
-
+import csv
+import bcrypt
+import base64
+import io
 import pandas as pd
+from numpy import int64
+from dotenv import load_dotenv
+load_dotenv()
+import os
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail, Attachment, FileContent, FileName, FileType, Disposition
+from sorted_months_weekdays import Month_Sorted_Month, Weekday_Sorted_Week
 
 
 
-from bokeh.plotting import figure, show
-from bokeh.resources import CDN
-from bokeh.embed import file_html
-from bokeh.io import save, output_file
-from bokeh.palettes import Category20c
-from bokeh.transform import cumsum
-from bokeh.io import curdoc
-from bokeh.models import ColumnDataSource
-from bokeh.palettes import Spectral6
-
-
+import datetime
+from pandas.core.indexes.api import Int64Index
+import shutil
 app=Flask(__name__)
 
 
@@ -35,13 +37,18 @@ mysql = MySQL(app)
 
 
 
+month=["January","February","March","April","May","June","July","August","September","October","November","December"]
 
 @app.route('/home')
 @app.route('/')
 def home():
-    if session['id']:
-        session['loggedin']=True
-    else:
+    try:
+
+        if session['id']:
+            session['loggedin']=True
+        else:
+            session['loggedin']=False
+    except:
         session['loggedin']=False
     print("session at home", session)
     return render_template('main.html')
@@ -53,18 +60,41 @@ def register():
         username=request.form['uname']
         password=request.form['pass']
         email=request.form['email']
+        session['username'] = username
+        session['password']=password
+        session['email']=email
+        hashed_pr=bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        session['hash']=hashed_pr
+ 
         cursor = mysql.connection.cursor()
         cursor.execute('SELECT * FROM user WHERE username = % s', (username, ))
         account=cursor.fetchone()
-        print(account)
+ 
         if account:
             msg="Account already exists"
         else:
-            cursor.execute('INSERT INTO user VALUES (NULL, % s, % s, % s)', (username, password, email, ))
+            cursor.execute('INSERT INTO user VALUES (NULL, % s, % s, % s)', (username, hashed_pr, email, ))
             mysql.connection.commit()
             msg = 'You have successfully registered !'
             session['loggedin']=False
-            
+            print("send grid key is",os.environ.get('SENDGRID_API_KEY'))
+            message = Mail(
+            from_email='noreplyflaskblog1@gmail.com',
+            to_emails=session['email'],
+            subject='Successful Registeration',
+            html_content='<h1>X-PENSE TRACKER</h1> <p> Congratulations'+' '+ session['username'] + ' , on successully creating an account with X-Pense . To manage your expenses please proceed to the dashboard upon logging in.</p><h2>Your account details are : </h2><h3> Username: </h3> <i>'+session['username']+'</i><h3>E-Mail: </h3> <i>'+ session['email'] +'</i><h3>Password: </h3> <i>'+ session['password'] + '</i>')
+            try:
+                sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+                response = sg.send(message)
+                print(response.status_code)
+                print(response.body)
+                print(response.headers)
+            except Exception as e:
+                print(e)
+            session.pop('username',None)
+            session.pop('email',None)
+            session.pop('password',None)
+            session.pop('hash',None)
             print("session at register else" ,session)
             return render_template('main.html', msg=msg)
 
@@ -76,26 +106,42 @@ def login():
     if request.method == 'POST':
         username=request.form['username']
         password=request.form['password']
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('SELECT * FROM user WHERE username = % s AND password = % s', (username, password ))
-        account = cursor.fetchone()
+        
+        
+        
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         
-        print ("account at login is:",account)
-        if account:
-            session['loggedin'] = True
-            session['id'] = account['id']
-            session['username'] = account['username']
-            msg = 'Logged in successfully !'
-    
-            print("session at login ",session)
-            return render_template('main.html', msg=msg)
-            
+        cursor.execute('SELECT password FROM user WHERE username=%s ',(username,))
+        h_p = cursor.fetchone()
+        if h_p:
+            a=bcrypt.checkpw(password.encode('utf-8'),h_p['password'].encode('utf-8'))
 
+            if a == False:
+                msg="Password is incorrect"
+                print("session at a if" ,session)
+                return render_template('main.html', msg=msg)
+            else:
+                cursor.execute('SELECT * FROM user WHERE username = % s AND password = % s', (username, h_p['password'] ))
+                account = cursor.fetchone()
+                
+                cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+                
+      
+             
+                session['loggedin'] = True
+                session['id'] = account['id']
+                session['username'] = account['username']
+                
+                msg = 'Logged in successfully !'
+            
+                print("session at login ",session)
+                return render_template('main.html', msg=msg)
+                    
         else:
             msg="Account doesn't exist"
             print("session at login else" ,session)
             return render_template('main.html', msg=msg)
+
 @app.route('/dashboard', methods=['GET','POST'])
 def dashboard():
     wa=''
@@ -104,6 +150,7 @@ def dashboard():
     
     
     if session['loggedin']:
+        session['s_m']=None
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         try:
         
@@ -111,14 +158,15 @@ def dashboard():
             b_m=cursor.fetchone()
             b_m['b_month']=b_m['b_month'].split('-')[1]
             session['b_m']=b_m['b_month']
+            session['s_m']=session['b_m']
             print(b_m)
         except:
             pass
         data=[]
         try:
-            cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a WHERE id = % s AND monthname(date)=%s', (session['id'], session['b_m'] ))
+            cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a WHERE id = % s AND monthname(date)=%s ORDER BY date DESC', (session['id'], session['b_m'] ))
             data=cursor.fetchall()
-            print("data",data)
+
         except KeyError:
             pass
        
@@ -126,7 +174,7 @@ def dashboard():
 
             cursor.execute('SELECT bamount FROM budget WHERE id = % s', (session['id'], ))
             b=cursor.fetchone()
-            print("b is ",b)
+
         except TypeError:
             b={'bamount': 0}
         
@@ -134,34 +182,27 @@ def dashboard():
 
             cursor.execute('SELECT SUM(amount) AS tsum FROM expense_a WHERE id = % s AND monthname(date)=%s', (session['id'], session['b_m']))
             total=cursor.fetchone()
-            print("total",total)
+   
         except KeyError:
             total={'tsum':0}
 
        
-        #cursor.execute("SELECT  DATE_FORMAT(date,'%M') AS dt  FROM expense_a ")
-        #dt=cursor.fetchall()
-        #print(dt)
+      
 
-        cursor.execute("SELECT DISTINCT MONTHNAME(date) AS 'dt' FROM expense_a WHERE id=%s ", (session['id'],))
+        cursor.execute("SELECT b_month FROM budget WHERE id=%s ", (session['id'],))
         d_m=cursor.fetchall()
         l=[]
         for i in d_m:
-            l.append(i['dt'])
+            l.append(i['b_month'][5:])
         session['d_m']=l
-        print("dm is ",l)
+     
 
-        #cursor.execute('SELECT MAX(date) AS mxd, MIN(date) AS mnd FROM expense_a WHERE id=% s', (session['id'],))
-        #date=cursor.fetchone()
-        #session['mxd']=date['mxd']
-        #session['mnd']=date['mnd']
-        #print(date['mnd'])
-        #print("session after date",session)    
+         
         if b:
 
             session['budget']=b['bamount']
             bud=session['budget']
-            print(session['budget'])
+
         else:
             flash(u"Please Set Budget First","primary")
             print("session at dashboard else" ,session)
@@ -182,34 +223,42 @@ def dashboard():
     else:
         wa='Please login first'       
         return render_template('main.html', wa=wa)
+ 
+
+
 @app.route('/switchmonth/<string:mon>', methods=['GET','POST'])   
 def switch_month(mon):
-    print(session)
+   
     month=["January","February","March","April","May","June","July","August","September","October","November","December"]
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    session['b_m']=mon
+    session['s_m']=mon
     print(" mon is ",mon)
-    cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a WHERE id = % s AND monthname(date)=%s', (session['id'], mon ))
+    
+    cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a  WHERE id = % s AND monthname(date)=%s  ORDER BY date DESC  ', (session['id'], mon ))
     data=cursor.fetchall()
-    print(data)
+    
     cursor.execute('SELECT bamount FROM budget WHERE id=%s AND b_month LIKE %s', (session['id'], '2021-'+mon,))
     b=cursor.fetchone()
-    print("b is ",b)
+ 
     cursor.execute('SELECT SUM(amount) AS tsum FROM expense_a WHERE id = % s AND monthname(date)=%s', (session['id'], mon))
     total=cursor.fetchone()
-    print("total",total)
-    cursor.execute("SELECT DISTINCT MONTHNAME(date) AS 'dt' FROM expense_a WHERE id=%s ", (session['id'],))
+    
+    cursor.execute("SELECT b_month FROM budget WHERE id=%s ", (session['id'],))
     d_m=cursor.fetchall()
     l=[]
     for i in d_m:
-        l.append(i['dt'])
-    session['d_m']=l
-    print("dm is ",l)
+        l.append(i['b_month'][5:])
+        session['d_m']=l
+  
     session['budget']=b['bamount']
     bud=session['budget']
-    print(session['budget'])
-    return render_template('dashboard.html',data=data,budget=bud, total=int(total['tsum']),month=month,d_m=session['d_m'])
+  
+    print("switch month", session)
+    try:
 
+        return render_template('dashboard.html',data=data,budget=bud, total=int(total['tsum']),month=month,d_m=session['d_m'])
+    except:
+        return render_template('dashboard.html',data=data,budget=bud, total=0,month=month,d_m=session['d_m'])
 
 @app.route('/setbudget', methods=['GET','POST'])
 def budget():
@@ -220,6 +269,7 @@ def budget():
     b_m = request.form['b_m']
     session['b_m']=b_m
     m=b_y+"-"+b_m
+    session['s_m']=b_m
     print("month and year is ",b_y,b_m)
     cursor = mysql.connection.cursor()
     cursor.execute('INSERT INTO budget VALUES (NULL,%s, %s, %s)', (b_id,budget,m, ))
@@ -230,14 +280,19 @@ def budget():
     session['budget']=account['bamount']  
     flash(u"Budget has been set, Now you can proceed to adding expenses","primary")
     print("session at budget " ,session)
-    return render_template('dashboard.html', budget=session['budget'], total=0, b_m=session['b_m'],)
+    #return redirect(url_for('dashboard',budget=session['budget'], total=0, b_m=session['b_m'],))
+    return redirect(url_for('switch_month', mon=session['s_m']))
+    
+    
 
 
 @app.route('/updatebudget', methods=['POST'])
 def updatebudget():
     new_budget=request.form['updatebudget']
+    n_y=request.form['b_y']
+    n_m=request.form['b_m']
     cursor = mysql.connection.cursor()
-    cursor.execute('UPDATE budget SET bamount=%s WHERE id=%s',(new_budget,session['id'],))
+    cursor.execute('UPDATE budget SET bamount=%s WHERE id=%s AND b_month=%s',(new_budget,session['id'],n_y+"-"+n_m))
     mysql.connection.commit()
     flash(u"Budget Updated","success")
     return redirect(url_for('dashboard'))
@@ -250,47 +305,61 @@ def expense():
     amount=request.form['am']
     category=request.form['categ']
     date=request.form['date']
+    print("date is ",date)
     description=request.form['desc']
     cursor = mysql.connection.cursor()
-    print("before commit")
-    cursor.execute('INSERT INTO expense_a VALUES(NULL,%s,%s,%s,%s,%s)', (e_id,amount,category,date,description, ))
-    mysql.connection.commit()
-    print("commit done")
-    cursor.execute('SELECT SUM(amount) AS tsum FROM expense_a WHERE id = % s ', (e_id, ))
-    ac=cursor.fetchone()
-    print("ac is ",ac)
-    print("sum done")
+ 
+    cursor.execute('SELECT bamount FROM budget WHERE id=%s AND b_month LIKE %s',(session['id'],date[0:4]+'-'+month[int(date[5:7])-1]))
+    check=cursor.fetchone()
+   
+
+    if check:
+
+        cursor.execute('INSERT INTO expense_a VALUES(NULL,%s,%s,%s,%s,%s)', (e_id,amount,category,date,description, ))
+        mysql.connection.commit()
+        
+    
+   
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute('SELECT bamount FROM budget WHERE id = % s ', (e_id, ))
     bud=cursor.fetchone()
-    if int(ac[0]) > int(bud['bamount']) :
-        wa="Warning : You've exceeded your budget"
-    print(session)    
-    print("before data")   
+    print("bud is",bud)
+ 
     cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a WHERE id = %s AND monthname(date)=%s', (session['id'], session['b_m'] ))
     data=cursor.fetchall()
-    print("after data",data)
-    print("before totoal")
+  
     cursor.execute('SELECT SUM(amount) AS tsum FROM expense_a WHERE id = %s AND monthname(date)=%s ', (session['id'],session['b_m'], ))
     total=cursor.fetchone()
+   
+    
     if total['tsum'] == None:
         total['tsum']=0
-    print("total aex",total)
+ 
     bud=session['budget']
-    print("bud at expense ", bud)
-    if data:
-            flash("Expense has been added","success")
+   
+    if check:
+
+        if data:
+            if session['s_m']:
+                flash("Expense has been added","success")
+                print("session at aexpense if data" ,session)
+                #return render_template('dashboard.html', data=data,budget=int(bud), total=int(total['tsum']))
+                return redirect(url_for('switch_month',mon=session['s_m'],data=data,budget=int(bud), total=int(total['tsum'])))
+            else:
+                flash("Expense has been added","success")
+                print("session at aexpense if data" ,session)
+                #return render_template('dashboard.html', data=data,budget=int(bud), total=int(total['tsum']))
+                return redirect(url_for('switch_month',mon=session['b_m'],data=data,budget=int(bud), total=int(total['tsum'])))
         
-            print("session at aexpense if data" ,session)
-            return render_template('dashboard.html', data=data,budget=int(bud), total=int(total['tsum']))
-    msg='Expense has been added'
-    print("session at dashbaord final" ,session)
-    return render_template('dashboard.html',msg=msg ,data=data,budget=int(bud), total=int(total['tsum']))
+    else:
+
+        flash(u"Budget not set for the month inputted for the expense","error")
+        return redirect(url_for('dashboard', data=data,budget=int(bud), total=int(total['tsum'])))
 
 @app.route('/uexpense/<string:id>', methods=['GET','POST'])
 def uexpense(id):
 
-    print(id)
+ 
     nam=request.form['nam']
     ncateg=request.form['ncateg']
     ndate=request.form['ndate']
@@ -298,91 +367,156 @@ def uexpense(id):
     cursor = mysql.connection.cursor()
     cursor.execute('UPDATE expense_a SET amount=%s, category=%s, date=%s, description=%s WHERE ex_id=%s and id=%s ', (nam,ncateg,ndate,ndesc,id,session['id'], ))
     mysql.connection.commit()
-    flash(u"Expense Has Been Updated","succcess")
-    print(dict(request.form))
-    return redirect(url_for('dashboard'))
+    
+ 
+    try:
+        flash(u"Expense Has Been Updated","succcess")
+        return redirect(url_for('switch_month',mon=session['s_m']))
+    except:
+
+        return redirect(url_for('dashboard'))
 
 
 @app.route('/delete', methods=['GET','POST'])
 def delete():
-    print("restes form is ",request.form)
+
     da=request.form['del']
-    print(da)
+    
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute('DELETE FROM expense_a WHERE ex_id = % s ', (da, ))
     mysql.connection.commit()
     cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a WHERE id = % s', (session['id'], ))
     data=cursor.fetchall()
     
+    try:
+        return redirect(url_for('switch_month',mon=session['s_m']))
+    
+    except:
+        return redirect(url_for('dashboard'))
 
+@app.route('/dtransactions', methods=['GET','POST'])
+def download_transactions():
+    conn=None
+    cursor=None
+    try:
+   
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a WHERE id = % s AND monthname(date)=%s', (session['id'], session['s_m'] ))
+        result=cursor.fetchall()
+       
+        output=io.StringIO()
+        writer=csv.writer(output)
+        head=["Username",session['username']]
+        writer.writerow(head)
+        line=['ex_id','amount','category','date','description']
+        writer.writerow(line)
+        for row in result:
+           
+            line=[str(row['ex_id']),  str(row['amount']) , row['category'], str(row['date']), row['description']]
+            writer.writerow(line)
+      
+        output.seek(0)
+      
+        
+        return Response(output, mimetype="text/csv", headers={"Content-Disposition":"attachment;filename=transaction_report.csv"})
+
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+        
+    
+        
+
+
+@app.route('/etransactions',methods=['GET','POST'])
+def email_transaction():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT email FROM user WHERE id=%s',(session['id'],))
+    em=cursor.fetchone()
+    cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a WHERE id =%s AND monthname(date)=%s ',(session['id'],session['s_m'],))
+    result=cursor.fetchall()
+    df=pd.DataFrame(result)
+    df_update=df.rename(columns={'ex_id':'EX_ID','amount':'Amount','category':'Category','date':'Date','description':'Description'})
+    #header=['EX_ID','Amount','Category','Date','Description']
+    df_update.to_csv(r'transaction.csv',index=False)
+
+    with open('transaction.csv', 'rb') as f:
+        data = f.read()
+        f.close()
+    message = Mail(
+    from_email='noreplyflaskblog1@gmail.com',
+    to_emails=em['email'],
+    subject='Transaction Report For The Month Of'+'-'+ session['s_m'],
+    html_content='Below you will find attached a detailed copy of your transactions for the month of'+' '+session['s_m']
+    )
+
+    encoded_file = base64.b64encode(data).decode()
+  
+
+    attachedFile = Attachment(
+        FileContent(encoded_file),
+        FileName('transaction'+'_'+session['s_m']+'.csv'),
+        FileType('transaction/csv'),
+        Disposition('attachment')
+    )
+    message.attachment = attachedFile
+
+    sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+    response = sg.send(message)
+    print(response.status_code, response.body, response.headers)
+    flash(u"E-mail has been sent","success")
     return redirect(url_for('dashboard'))
+
+
 @app.route('/statistics', methods=['GET','POST'])
 def statistics():
+    print("stat session",session)
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute('SELECT category,amount FROM expense_a WHERE id = % s', (session['id'],  ))
+    cursor.execute('SELECT category,amount FROM expense_a WHERE id = % s AND monthname(date)=%s', (session['id'], session['s_m'] ))
     catam = (cursor.fetchall())
-    print(catam)
+    print("catm is ",catam)
+    cursor.execute('SELECT monthname(date) as m,sum(amount) as a from expense_a WHERE id=%s group by monthname(date) order by monthname(date)DESC  ', (session['id'],))
+    a_month=cursor.fetchall()
+  
+    s_r=[]
+    s_c=[]
+    l={}
+    fc=[]
+    for i in a_month:
+        s_r.append(i['m'])
+        s_c.append(int(i['a']))
+    c=Month_Sorted_Month(s_r)
+    for i in range(0,len(a_month)):
+        d=list(a_month[i].values())
+        l[d[0]]=d[1]
+    for j in c:
+        fc.append(int(l[j]))
+    print(s_r,s_c,c,fc)
     x={}
     for i in catam:
-        print("I is ",i)
-        if(i['category'] in x):
-            x[i['category']]+=i['amount']
+   
+        if(i["category"] in x):
+            x[i["category"]]+=i["amount"]
         else:
-            x[i['category']] = i['amount']
-        print(i['category'],i['amount'])
+            x[i["category"]] = i["amount"]
+  
     print(x)
-    curdoc().theme = 'dark_minimal'
-
-    chart_colors = ['#44e5e2', '#e29e44', '#e244db',
-                '#d8e244', '#eeeeee', '#56e244', '#007bff', 'black']
-    data = pd.Series(x).reset_index(name='value').rename(columns={'index':'country'})
-    print(data)
-    data['angle'] = data['value']/data['value'].sum() * 2*pi
-    data['color'] = chart_colors[:len(x)]
-
-    p = figure(plot_height=350, title="Pie Chart", toolbar_location=None,
-                tools="hover", tooltips="@country: @value", x_range=(-0.5, 1.0))
-
-    p.wedge(x=0, y=1, radius=0.4,
-                start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),
-                line_color="white", fill_color='color', legend_field='country', source=data)
-
-    p.axis.axis_label=None
-    p.axis.visible=False
-    p.grid.grid_line_color = None
-
-
-
-    html = file_html(p, CDN, "my plot")
-    #file=open('./static/pie.html',"w")
-    #file.write(html)
-    #file.close()
-
-    
-    
-
     fruits = list(x.keys())
     counts = list(x.values())
     
+    session['statnotavail']=False
+    
     print(fruits,counts)
-    source = ColumnDataSource(data=dict(fruits=fruits, counts=counts, color=Spectral6))
-
-    p_h = figure(x_range=fruits, y_range=(0,max(counts)*2), plot_height=250, title="Fruit counts",
-           toolbar_location=None, tools="")
-
-    p_h.vbar(x='fruits', top='counts', width=0.9, color='color', legend_field="fruits", source=source)
-
-    p_h.xgrid.grid_line_color = None
-    p_h.legend.orientation = "horizontal"
-    p_h.legend.location = "top_center"
-
     
-    html1 = file_html(p_h, CDN, "my plot1")
-
-    
-    
-    return render_template('stats.html',html=html,html1=html1)
-
+    if(catam):
+        return render_template('stats.html',row=fruits,col=counts,s_r=c,s_c=fc)
+        print(session)
+    else:
+        print(session)
+        session['statnotavail']=True
+        no="No expenses available to generate graphical preview"
+        return render_template('stats.html',no=no)
 
 
 @app.route('/logout')
@@ -397,6 +531,11 @@ def logout():
    session.pop('new_user', None)
    session.pop('b_m', None)
    session.pop('d_m', None)
+   session.pop("s_m", None)
+   session.pop("statnotavail",None)
+   session.pop("row",None)
+   session.pop("column",None)
+ 
    session['loggedin']=False
    print(session)
    msg='You have been logged out successfully'

@@ -1,32 +1,443 @@
 {% extends "base.html" %}
-{% block header %}
-<div class="p-1">
-    <a  style="float:right"type="button" class="btn btn-outline-warning mt-3 mr-3" id="donate" href="/dashboard">DASHBOARD</a>
-    <a  style="float:right"type="button" class="btn btn-outline-success mt-3 mr-3" id="donate" href="/logout">LOGOUT</a>
-    <a  style="float:right"type="button" class="btn btn-outline-primary mt-3 mr-3" id="donate" href="/home">HOME</a>
-    <h1 class="display-4">Statistics</h1>
-    
-</div>
 
-{% endblock header %}
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Creative - Bootstrap 3 Responsive Admin Template">
+  <meta name="author" content="GeeksLabs">
+  <meta name="keyword" content="Creative, Dashboard, Admin, Template, Theme, Bootstrap, Responsive, Retina, Minimal">
+  <link rel="shortcut icon" href="img/favicon.png">
 
+  <title>Charts | Creative - Bootstrap 3 Responsive Admin Template</title>
 
+  <!-- Bootstrap CSS -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <!-- bootstrap theme -->
+  <link href="css/bootstrap-theme.css" rel="stylesheet">
+  <!--external css-->
+  <!-- font icon -->
+  <link href="css/elegant-icons-style.css" rel="stylesheet" />
+  <link href="css/font-awesome.min.css" rel="stylesheet" />
+  <!-- Custom styles -->
+  <link href="css/style.css" rel="stylesheet">
+  <link href="css/style-responsive.css" rel="stylesheet" />
+</head>
 {% block content %}
-<hr style="color: white;">
-<div class="container">
-    <div>
-        <h1 class="display-4"> Pie Chart</h1>
-        <!-- <iframe type='text/html' srcdoc="../static/pie.html" width="675" height="450"></iframe> -->
-        <iframe type="text/html" srcdoc="{{html}}" width="620" height="370" ></iframe>
-    </div>
-    <div>
-        <h1 class="display-4"> Bar Graph</h1>
-        <!-- <iframe type='text/html' srcdoc="../static/pie.html" width="675" height="450"></iframe> -->
-        <iframe type="text/html" srcdoc="{{html1}}" width="620" height="370" ></iframe>
-    </div>
-</div>
+{% if no %}
+<p style="color: red;">{{no}}</p>
+{% else %}
 
 
+  <div class="row ">
+    <!-- chart morris start -->
+    <div class="col-lg-12 " >
+      <section class="panel">
+        <header class="panel-heading">
+          <h3>General Chart</Char>
+              </header>
+              <div class="panel-body">
+                <div class="tab-pane" id="chartjs">
+              <div class="row">
+                  <!-- Line -->
+                  <div class="col-lg-6">
+                      <section class="panel" style="background-color: #292b2c;">
+                        <header class="panel-heading">
+                            Line Graph
+                        </header>
+                        <div class="panel-body text-center">
+                            <canvas id="myChartline" height="300" width="450"></canvas>
+                        </div>
+                    </section>
+                  </div>
+                  <!-- Bar -->
+                  <div class="col-lg-6">
+                      <section class="panel" style="background-color: #292b2c;">
+                        <header class="panel-heading">
+                            Bar Graph
+                        </header>
+                        <div class="panel-body text-center">
+                            <canvas id="myChartbar" height="300" width="450"></canvas>
+                        </div>
+                    </section>
+                  </div>
+              </div>
+              <div class="row">
+                  <!-- Radar -->
+                  <div class="col-lg-6">
+                      <section class="panel" style="background-color: #292b2c;">
+                        <header class="panel-heading">
+                            Radar Graph
+                        </header>
+                        <div class="panel-body text-center">
+                            <canvas id="myChartradar" height="300" width="450"></canvas>
+                        </div>
+                    </section>
+                  </div>
+                  <!-- Polar Area -->
+                  <div class="col-lg-6">
+                      <section class="panel" style="background-color: #292b2c;">
+                        <header class="panel-heading">
+                            Polar Graph
+                        </header>
+                        <div class="panel-body text-center">
+                            <canvas id="myChartpolar" height="300" width="450"></canvas>
+                        </div>
+                    </section>
+                  </div>
+              </div>
+              <div class="row">
+
+                  <!-- Pie -->
+                  <div class="col-lg-6">
+                      <section class="panel" style="background-color: #292b2c;">
+                        <header class="panel-heading">
+                            Pie Graph
+                        </header>
+                        <div class="panel-body text-center">
+                            <canvas id="myChartpie" height="300" width="450"></canvas>
+                        </div>
+                    </section>
+                  </div>
+                  <!-- Doughnut -->
+                  <div class="col-lg-6">
+                      <section class="panel" style="background-color: #292b2c;">
+                        <header class="panel-heading">
+                            Doughnut Graph
+                        </header>
+                        <div class="panel-body text-center">
+                            <canvas id="myChartdoughnut" height="300" width="450"></canvas>
+                        </div>
+                    </section>
+                  </div>
+              </div>
+          </div>
+              </div>
+              </div>
+            </section>
+      </div>
+      <!-- chart morris start -->
+    </div>
+  
+    <!-- <div class="container">
+      <canvas id="myChart"></canvas>
+    </div> -->
+
+    <script>
+      let myChart = document.getElementById('myChartbar').getContext('2d');
+      var ro = JSON.parse('{{row | tojson | safe}}');
+      var co = JSON.parse('{{col | tojson | safe}}');
+      var s_ro = JSON.parse('{{s_r | tojson | safe}}');
+      var s_co = JSON.parse('{{s_c | tojson | safe}}');
+      console.log(ro);
+      console.log(co);
+      console.log(s_ro);
+      console.log(s_co);
+      // Global Options
+      Chart.defaults.global.defaultFontFamily = 'Lato';
+      Chart.defaults.global.defaultFontSize = 18;
+      Chart.defaults.global.defaultFontColor = '#2E86C1 ';
+
+
+      let barChart = new Chart(myChartbar, {
+        type:'bar', // bar, horizontalBar, pie, line, doughnut, radar, polarArea
+        data:{
+          labels:ro,
+          datasets:[{
+            label:'Population',
+            data:co,
+            //backgroundColor:'green',
+            backgroundColor:[
+              'rgba(255, 99, 132, 0.6)',
+              'rgba(54, 162, 235, 0.6)',
+              'rgba(255, 206, 86, 0.6)',
+              'rgba(75, 192, 192, 0.6)',
+              'rgba(153, 102, 255, 0.6)',
+              'rgba(255, 159, 64, 0.6)',
+              'rgba(255, 99, 132, 0.6)'
+            ],
+            borderWidth:1,
+            borderColor:'#777',
+            hoverBorderWidth:3,
+            hoverBorderColor:'#000',
+            
+          }]
+        },
+        options:{
+          scales: {
+              xAxes: [{
+                  barThickness: 40,  // number (pixels) or 'flex'
+                  maxBarThickness: 50 // number (pixels)
+              }]},
+          title:{
+            display:true,
+            text:'Expenses',
+            fontColor:'#FFF',
+            fontSize:25
+          },
+          legend:{
+            display:false,
+            position:'right',
+            labels:{
+              fontColor:'white'
+            }
+          },
+          layout:{
+            padding:{
+              left:50,
+              right:0,
+              bottom:0,
+              top:0
+            }
+          },
+          tooltips:{
+            enabled:true
+          }
+        }
+      });
+      let pieChart = new Chart(myChartpie, {
+        type:'pie', // bar, horizontalBar, pie, line, doughnut, radar, polarArea
+        data:{
+          labels:ro,
+          datasets:[{
+            label:'Population',
+            data:co,
+            //backgroundColor:'green',
+            backgroundColor:[
+              'rgba(255, 99, 132, 0.6)',
+              'rgba(54, 162, 235, 0.6)',
+              'rgba(255, 206, 86, 0.6)',
+              'rgba(75, 192, 192, 0.6)',
+              'rgba(153, 102, 255, 0.6)',
+              'rgba(255, 159, 64, 0.6)',
+              'rgba(255, 99, 132, 0.6)'
+            ],
+            borderWidth:1,
+            borderColor:'#777',
+            hoverBorderWidth:3,
+            hoverBorderColor:'#000'
+          }]
+        },
+        options:{
+          title:{
+            display:true,
+            text:'Expenses',
+            fontColor:'#FFF',
+            fontSize:25
+          },
+          legend:{
+            display:true,
+            position:'right',
+            labels:{
+              fontColor:'white'
+            }
+          },
+          layout:{
+            padding:{
+              left:50,
+              right:0,
+              bottom:0,
+              top:0
+            }
+          },
+          tooltips:{
+            enabled:true
+          }
+        }
+      });
+      let doughnutChart = new Chart(myChartdoughnut, {
+        type:'doughnut', // bar, horizontalBar, pie, line, doughnut, radar, polarArea
+        data:{
+          labels:ro,
+          datasets:[{
+            label:'Population',
+            data:co,
+            //backgroundColor:'green',
+            backgroundColor:[
+              'rgba(255, 99, 132, 0.6)',
+              'rgba(54, 162, 235, 0.6)',
+              'rgba(255, 206, 86, 0.6)',
+              'rgba(75, 192, 192, 0.6)',
+              'rgba(153, 102, 255, 0.6)',
+              'rgba(255, 159, 64, 0.6)',
+              'rgba(255, 99, 132, 0.6)'
+            ],
+            borderWidth:1,
+            borderColor:'#777',
+            hoverBorderWidth:3,
+            hoverBorderColor:'#000'
+          }]
+        },
+        options:{
+          title:{
+            display:true,
+            text:'Expenses',
+            fontColor:'#FFF',
+            fontSize:25
+          },
+          legend:{
+            display:true,
+            position:'right',
+            labels:{
+              fontColor:'white'
+            }
+          },
+          layout:{
+            padding:{
+              left:50,
+              right:0,
+              bottom:0,
+              top:0
+            }
+          },
+          tooltips:{
+            enabled:true
+          }
+        }
+      });
+      let lineChart = new Chart(myChartline, {
+        type:'line', // bar, horizontalBar, pie, line, doughnut, radar, polarArea
+        data:{
+          labels:s_ro,
+          datasets:[{
+            fill:true,
+            data:s_co,
+            tension:0.1,
+            backgroundColor:'#BB8FCE',
+            borderWidth:1,
+            borderColor:'#777',
+            hoverBorderWidth:3,
+            hoverBorderColor:'#000'
+          }]
+        },
+        options:{
+          title:{
+            display:true,
+            text:'Expenses',
+            fontColor:'#FFF',
+            fontSize:25
+          },
+          legend:{
+            display:false,
+            position:'right',
+            labels:{
+              fontColor:'white'
+            }
+          },
+          layout:{
+            padding:{
+              left:50,
+              right:0,
+              bottom:0,
+              top:0
+            }
+          },
+          tooltips:{
+            enabled:true
+          }
+        }
+      });
+      let polarChart = new Chart(myChartpolar, {
+        type:'polarArea', // bar, horizontalBar, pie, line, doughnut, radar, polarArea
+        data:{
+          labels:ro,
+          datasets:[{
+            label:'Population',
+            data:co,
+            //backgroundColor:'green',
+            backgroundColor:[
+              'rgba(255, 99, 132, 0.6)',
+              'rgba(54, 162, 235, 0.6)',
+              'rgba(255, 206, 86, 0.6)',
+              'rgba(75, 192, 192, 0.6)',
+              'rgba(153, 102, 255, 0.6)',
+              'rgba(255, 159, 64, 0.6)',
+              'rgba(255, 99, 132, 0.6)'
+            ],
+            borderWidth:1,
+            borderColor:'#777',
+            hoverBorderWidth:3,
+            hoverBorderColor:'#000'
+          }]
+        },
+        options:{
+          title:{
+            display:true,
+            text:'Expenses',
+            fontColor:'#FFF',
+            fontSize:25
+          },
+          legend:{
+            display:true,
+            position:'right',
+            labels:{
+              fontColor:'white'
+            }
+          },
+          layout:{
+            padding:{
+              left:50,
+              right:0,
+              bottom:0,
+              top:0
+            }
+          },
+          tooltips:{
+            enabled:true
+          }
+        }
+      });
+      let radarChart = new Chart(myChartradar, {
+        type:'radar', // bar, horizontalBar, pie, line, doughnut, radar, polarArea
+        data:{
+          labels:ro,
+          datasets:[{
+            label:'Population',
+            data:co,
+            //backgroundColor:'green',
+            backgroundColor:[
+              'rgba(255, 99, 132, 0.6)',
+              'rgba(54, 162, 235, 0.6)',
+              'rgba(255, 206, 86, 0.6)',
+              'rgba(75, 192, 192, 0.6)',
+              'rgba(153, 102, 255, 0.6)',
+              'rgba(255, 159, 64, 0.6)',
+              'rgba(255, 99, 132, 0.6)'
+            ],
+            borderWidth:1,
+            borderColor:'#777',
+            hoverBorderWidth:3,
+            hoverBorderColor:'#000'
+          }]
+        },
+        options:{
+          title:{
+            display:true,
+            text:'Expenses',
+            fontColor:'#FFF',
+            fontSize:25
+          },
+          legend:{
+            display:false,
+            position:'right',
+            labels:{
+              fontColor:'white'
+            }
+          },
+          layout:{
+            padding:{
+              left:50,
+              right:0,
+              bottom:0,
+              top:0
+            }
+          },
+          tooltips:{
+            enabled:true
+          }
+        }
+      });
+    </script>
+{% endif %}
 
 
 {% endblock content %}
