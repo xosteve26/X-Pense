@@ -192,27 +192,28 @@
               </thead>
             
               
-                 {% for each in data %} 
+                {% for each in range(0,data|length) %} 
+                
                   
-                  <tr id={{each['ex_id']}}>
-                      <td>{{ each['ex_id'] }}</td>
-                      <td>${{ each['amount'] }}</td>
-                      <td>{{each['category']}}</td>
-                      <td>{{each['date']}}</td>
-                      <td>{{each['description']}}</td>
+                  <tr id={{data[each]['ex_id']}}>
+                      <td>{{each}}</td>
+                      <td>${{ data[each]['amount'] }}</td>
+                      <td>{{data[each]['category']}}</td>
+                      <td>{{data[each]['date']}}</td>
+                      <td>{{data[each]['description']}}</td>
           
                       <td>
-                        <a href='/uexpense/{{each['ex_id']}}' class="btn btn-outline-primary" data-toggle="modal" data-target="#myModal{{each['ex_id']}}" id={{each['ex_id']}}>Modify</a>
+                        <a href='/uexpense/{{data[each]['ex_id']}}' class="btn btn-outline-primary" data-toggle="modal" data-target="#myModal{{data[each]['ex_id']}}" id={{data[each]['ex_id']}}>Modify</a>
                         |
                         <form style="display: inline;" action='/delete' method='POST'>
-                          <input value={{each['ex_id']}} name="del" style="display: none;">
+                          <input value={{data[each]['ex_id']}} name="del" style="display: none;">
                           <button type="submit" class="btn btn-outline-danger">Delete</button>
                         </form>
                         <!-- <button type="submit" class="btn btn-outline-primary" data-toggle="modal" data-target="#myModal" id={{each['ex_id']}}>Modify </button> -->
                       </td>
                   </tr>
                
-<div class="modal fade" id="myModal{{each['ex_id']}}">
+<div class="modal fade" id="myModal{{data[each]['ex_id']}}">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
               
@@ -226,10 +227,10 @@
 
       <!-- Modal body -->
       <div class="modal-body">
-        <form action="{{url_for('uexpense',id=each['ex_id']) }}" method='POST'>
+        <form action="{{url_for('uexpense',id=data[each]['ex_id']) }}" method='POST'>
           <div class="form-group">
             <label for="recipient-nameup"  class="col-form-label">Current Amount:</label>
-            <input type="text" readonly name="old_amount" class="form-control" id="recipient-name" value=${{each['amount']}}>
+            <input type="text" readonly name="old_amount" class="form-control" id="recipient-name" value=${{data[each]['amount']}}>
             <label for="recipient-nameup"  class="col-form-label"> Update Amount:</label>
             <input type="number" name="nam" class="form-control" id="recipient-nameup" 
                   placeholder="$" required>
@@ -238,7 +239,7 @@
             <label for="message-text" class="col-form-label">Category:</label>
 
             <select name='ncateg' id="inputState" class="form-control" required>
-              <option selected>{{each['category']}}</option>
+              <option selected>{{data[each]['category']}}</option>
               <option>Food</option>
               <option>Groceries</option>
               <option>Utilities</option>
@@ -251,13 +252,13 @@
           </div>
           <div class="form-group">
             <label for="recipient-name" class="col-form-label"> Current Date:</label>
-            <input type="text" readonly name="old_date" class="form-control" id="recipient-name" placeholder={{each['date']}}>
+            <input type="text" readonly name="old_date" class="form-control" id="recipient-name" placeholder={{data[each]['date']}}>
             <label for="recipient-name" class="col-form-label">Date:</label>
             <input type="date" name="ndate" class="form-control" id="recipient-name" required>
           </div>
           <div class="form-group">
             <label for="recipient-name" class="col-form-label">Description:</label>
-            <input type="text" name="ndesc" class="form-control input-lg" id="recipient-name" placeholder={{each['description']}} required >
+            <input type="text" name="ndesc" class="form-control input-lg" id="recipient-name" placeholder={{data[each]['description']}} required >
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -272,6 +273,7 @@
 </div>   
 
          
+               
                
                
                
