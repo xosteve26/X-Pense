@@ -38,7 +38,7 @@ mysql = MySQL(app)
 
 
 month=["January","February","March","April","May","June","July","August","September","October","November","December"]
-
+print(os.environ.get('SENDGRID_API_KEY'))
 @app.route('/home')
 @app.route('/')
 def home():
@@ -142,9 +142,7 @@ def login():
 def dashboard():
     wa=''
     print("initial dash session",session)
-    month=["January","February","March","April","May","June","July","August","September","October","November","December"]
-    
-    
+
     if session['loggedin']:
         session['s_m']=None
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -180,6 +178,7 @@ def dashboard():
             #To obtain the sum of all the expenses for a particular month
             cursor.execute('SELECT SUM(amount) AS tsum FROM expense_a WHERE id = % s AND monthname(date)=%s', (session['id'], session['b_m']))
             total=cursor.fetchone()
+            session['total']=str(total['tsum'])
    
         except KeyError:
             total={'tsum':0}
@@ -268,10 +267,17 @@ def budget():
     session['b_m']=b_m
     m=b_y+"-"+b_m
     session['s_m']=b_m
+    
     print("month and year is ",b_y,b_m)
     cursor = mysql.connection.cursor()
+    cursor.execute('SELECT * FROM budget WHERE id=%s AND b_month=%s',(session['id'],m))
+    exist=cursor.fetchall()
+    if exist:
+        flash(u'Budget already exists for the inputted month','danger')
+        return redirect(url_for('dashboard'))
     cursor.execute('INSERT INTO budget VALUES (NULL,%s, %s, %s)', (b_id,budget,m, ))
     mysql.connection.commit()
+    #Obtain the budget amount from databse
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute('SELECT * FROM budget WHERE id = % s AND bamount = % s', (b_id, budget ))
     account = cursor.fetchone()
@@ -348,24 +354,24 @@ def expense():
                         subject='WARNING: Exceeded Budget',
                         html_content='<h1>X-PENSE TRACKER</h1> <h3> Dear'+' '+ session['username'] + '</h3> <p style="color:red"> You have exceeded your monthly budget of amount'+' '+str(session['budget'])+ ', For the month of'+' '+session['s_m']+'.</p><br>You current expenses are worth:'+session['total']+'<p>Yours Truely,<br>ABC</p>')
                 try:
-                    sg = SendGridAPIClient('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')
+                    sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
                     response = sg.send(message)
                     print(response.status_code)
                     print(response.body)
                     print(response.headers)
                 except Exception as e:
                     print(e)
-                #return render_template('dashboard.html', data=data,budget=int(bud), total=int(total['tsum']))
+                
                 return redirect(url_for('switch_month',mon=session['s_m'],data=data,budget=int(bud), total=int(total['tsum'])))
             else:
                 flash(u"Expense has been added","success")
                 print("session at aexpense if data" ,session)
-                #return render_template('dashboard.html', data=data,budget=int(bud), total=int(total['tsum']))
+                
                 return redirect(url_for('switch_month',mon=session['b_m'],data=data,budget=int(bud), total=int(total['tsum'])))
         
     else:
 
-        flash(u"Budget not set for the month inputted for the expense","error")
+        flash(u"Budget not set for the month inputted for the expense","danger")
         return redirect(url_for('dashboard', data=data,budget=int(bud), total=int(total['tsum'])))
 
 @app.route('/uexpense/<string:id>', methods=['GET','POST'])
@@ -418,7 +424,7 @@ def download_transactions():
        
         output=io.StringIO()
         writer=csv.writer(output)
-        head=["Username",session['username']]
+        head=["Username :",session['username'],"Budget :","$"+str(session['budget']),"Total Expenses :","$"+str(session['total'])]
         writer.writerow(head)
         line=['amount','category','date','description']
         writer.writerow(line)
@@ -467,7 +473,7 @@ def email_transaction():
     )
     message.attachment = attachedFile
 
-    sg = SendGridAPIClient('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')
+    sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
     response = sg.send(message)
     print(response.status_code, response.body, response.headers)
     flash(u"E-mail has been sent","success")
@@ -553,4 +559,4 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0',port='80',debug=True)
