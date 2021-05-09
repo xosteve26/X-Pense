@@ -38,18 +38,20 @@ mysql = MySQL(app)
 
 
 month=["January","February","March","April","May","June","July","August","September","October","November","December"]
-print(os.environ.get('SENDGRID_API_KEY'))
+
 @app.route('/home')
 @app.route('/')
 def home():
+   
     try:
+        #To check if the incomming user has already logged in or not using the session
         if session['id']:
             session['loggedin']=True
         else:
             session['loggedin']=False
     except:
         session['loggedin']=False
-    print("session at home", session)
+  
     return render_template('main.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -76,7 +78,7 @@ def register():
             mysql.connection.commit()
             msg = 'You have successfully registered !'
             session['loggedin']=False
-            print("send grid key is",os.environ.get('SENDGRID_API_KEY'))
+         
             message = Mail(
             from_email='noreplyflaskblog1@gmail.com',
             to_emails=session['email'],
@@ -94,10 +96,10 @@ def register():
             session.pop('email',None)
             session.pop('password',None)
             session.pop('hash',None)
-            print("session at register else" ,session)
+      
             return render_template('main.html', msg=msg)
 
-    print("session at register final" ,session)
+
     return render_template('register.html',msg=msg)
 
 @app.route('/login', methods=['GET','POST'])
@@ -115,10 +117,10 @@ def login():
         #Below if is executed for when hashed password was obtained for the entered username
         if h_p:
             a=bcrypt.checkpw(password.encode('utf-8'),h_p['password'].encode('utf-8'))
-            #If condition is executed for when hash password doesnt match the password entered
+            #The following if condition is executed for when hash password doesnt match the password entered
             if a == False:
                 msg="Password is incorrect"
-                print("session at a if" ,session)
+       
                 return render_template('main.html', msg=msg)
             #else condition is executed for when password entered matches the hashed password then else block is executed
             else:
@@ -130,18 +132,18 @@ def login():
                 session['username'] = account['username']
                 session['email']=account['email']
                 msg = 'Logged in successfully !'
-                print("session at login ",session)
+        
                 return render_template('main.html', msg=msg)
         #The below else block is executed for when the query wasnt able to obtain the password for the username entered           
         else:
             msg="Account doesn't exist"
-            print("session at login else" ,session)
+    
             return render_template('main.html', msg=msg)
 
-@app.route('/dashboard', methods=['GET','POST'])
+@app.route('/dashboard', methods=['GET'])
 def dashboard():
     wa=''
-    print("initial dash session",session)
+   
 
     if session['loggedin']:
         session['s_m']=None
@@ -150,18 +152,22 @@ def dashboard():
             #To obtain the month for a set budget
             cursor.execute("SELECT b_month FROM budget WHERE id=%s", (session['id'],))
             b_m=cursor.fetchone()
+        
+            session['y_r']=b_m['b_month'].split('-')[0]
             b_m['b_month']=b_m['b_month'].split('-')[1]
+            
             session['b_m']=b_m['b_month']
-            session['s_m']=session['b_m']
-            print(b_m)
+            session['s_m']=session['y_r']+'-'+session['b_m']
+           
+        
         except:
             pass
         data=[]
         try:
             #To obtain the expense details for a particualar month of the user
-            cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a WHERE id = % s AND monthname(date)=%s ORDER BY date DESC', (session['id'], session['b_m'] ))
+            cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a WHERE id = % s AND monthname(date)=%s AND YEAR(date)=%s ORDER BY date DESC', (session['id'], session['b_m'],session['y_r'] ))
             data=cursor.fetchall()
-            print("data is",len(data))
+          
 
         except KeyError:
             pass
@@ -176,7 +182,7 @@ def dashboard():
         
         try:
             #To obtain the sum of all the expenses for a particular month
-            cursor.execute('SELECT SUM(amount) AS tsum FROM expense_a WHERE id = % s AND monthname(date)=%s', (session['id'], session['b_m']))
+            cursor.execute('SELECT SUM(amount) AS tsum FROM expense_a WHERE id = % s AND monthname(date)=%s AND YEAR(date)=%s', (session['id'], session['b_m'],session['y_r']))
             total=cursor.fetchone()
             session['total']=str(total['tsum'])
    
@@ -187,22 +193,31 @@ def dashboard():
         #To obtain the budget month
         cursor.execute("SELECT b_month FROM budget WHERE id=%s ", (session['id'],))
         d_m=cursor.fetchall()
-        l=[]
+        
+        l_month=[]
+        m_year=[]
+        year=[]
         for i in d_m:
-            l.append(i['b_month'][5:])
-        session['d_m']=l
+            l_month.append(i['b_month'][5:])
+            m_year.append(i['b_month'])
+            year.append(i['b_month'][0:4])
+        session['d_m']=l_month
+        session['y_m']=m_year
+        session['years']=year
+        
      
+    
         if b:
             session['budget']=b['bamount']
             bud=session['budget']
 
         else:
             flash(u"Please Set Budget First","primary")
-            print("session at dashboard else" ,session)
+      
             return render_template('dashboard.html',month=month)
         if data:
             flash(u"Wecome back {}".format(session['username']) , "primary")
-            print("session at dashboard if data" ,session)
+          
             return render_template('dashboard.html', data=data,budget=bud, total=int(total['tsum']),month=month,d_m=session['d_m'])
         else:
             flash(u"Please Add Expenses","primary")
@@ -216,27 +231,35 @@ def dashboard():
     else:
         wa='Please login first'       
         return render_template('main.html', wa=wa)
+
  
 
 
-@app.route('/switchmonth/<string:mon>', methods=['GET','POST'])   
+@app.route('/switchmonth/<string:mon>', methods=['GET'])   
 def switch_month(mon):
-   
+  
     month=["January","February","March","April","May","June","July","August","September","October","November","December"]
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     session['s_m']=mon
   
     #Retrieve expense details for a particualr month
-    cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a  WHERE id = % s AND monthname(date)=%s  ORDER BY date DESC  ', (session['id'], mon ))
+    cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a  WHERE id = % s AND monthname(date)=%s AND YEAR(date)=%s ORDER BY date DESC  ', (session['id'], mon.split('-')[1],mon.split('-')[0] ))
     data=cursor.fetchall()
+    
   
     #Obtain the budget amount for a particular month
-    cursor.execute('SELECT bamount FROM budget WHERE id=%s AND b_month LIKE %s', (session['id'], '2021-'+mon,))
+    cursor.execute('SELECT bamount FROM budget WHERE id=%s AND b_month LIKE %s', (session['id'], mon,))
     b=cursor.fetchone()
+  
+    if b == None:
+        flash(u"Budget does not exist for the inputted budget month/year","danger")
+        return redirect(url_for('dashboard'))
 
     #Obtain the total for the expenses corresponding to the month
-    cursor.execute('SELECT SUM(amount) AS tsum FROM expense_a WHERE id = % s AND monthname(date)=%s', (session['id'], mon))
+    cursor.execute('SELECT SUM(amount) AS tsum FROM expense_a WHERE id = % s AND monthname(date)=%s AND YEAR(date)=%s', (session['id'], mon.split('-')[1],mon.split('-')[0]))
     total=cursor.fetchone()
+ 
+    session['total']=str(total['tsum'])
    
     #To obtian the name of the budget month
     cursor.execute("SELECT b_month FROM budget WHERE id=%s ", (session['id'],))
@@ -250,26 +273,29 @@ def switch_month(mon):
     session['budget']=b['bamount']
     bud=session['budget']
   
-    print("switch month", session)
+  
     try:
 
         return render_template('dashboard.html',data=data,budget=bud, total=int(total['tsum']),month=month,d_m=session['d_m'])
+        #return redirect(url_for('dashboard',data=data,budget=bud, total=int(total['tsum']),month=month,d_m=session['d_m']))   
     except:
+        #return redirect(url_for('dashboard',data=data,budget=bud, total=0,month=month,d_m=session['d_m']))
         return render_template('dashboard.html',data=data,budget=bud, total=0,month=month,d_m=session['d_m'])
 
-@app.route('/setbudget', methods=['GET','POST'])
+@app.route('/setbudget', methods=['POST'])
 def budget():
-    print("budget",session)
+    
     budget=request.form['budget']
     b_id=session['id']
     b_y = request.form['b_y']
     b_m = request.form['b_m']
     session['b_m']=b_m
     m=b_y+"-"+b_m
-    session['s_m']=b_m
+    session['s_m']=m
     
-    print("month and year is ",b_y,b_m)
+ 
     cursor = mysql.connection.cursor()
+    #To check if the budget month entered by the user already exists
     cursor.execute('SELECT * FROM budget WHERE id=%s AND b_month=%s',(session['id'],m))
     exist=cursor.fetchall()
     if exist:
@@ -283,7 +309,7 @@ def budget():
     account = cursor.fetchone()
     session['budget']=account['bamount']  
     flash(u"Budget has been set, Now you can proceed to adding expenses","primary")
-    print("session at budget " ,session)
+
   
     return redirect(url_for('switch_month', mon=session['s_m']))
     
@@ -297,6 +323,7 @@ def updatebudget():
     n_m=request.form['b_m']
     
     cursor = mysql.connection.cursor()
+    #To update the required inputs given into the database
     cursor.execute('UPDATE budget SET bamount=%s WHERE id=%s AND b_month=%s',(new_budget,session['id'],n_y+"-"+n_m))
     mysql.connection.commit()
     
@@ -304,16 +331,18 @@ def updatebudget():
     return redirect(url_for('dashboard'))
 
 
-@app.route('/aexpense', methods=['GET','POST'])
+@app.route('/aexpense', methods=['POST'])
 def expense():
-    print("expense session",session)
+  
     e_id=session['id']
     amount=request.form['am']
     category=request.form['categ']
     date=request.form['date']
-    print("date is ",date)
+
     description=request.form['desc']
     cursor = mysql.connection.cursor()
+    session['y_r']=date[0:4]
+  
  
     cursor.execute('SELECT bamount FROM budget WHERE id=%s AND b_month LIKE %s',(session['id'],date[0:4]+'-'+month[int(date[5:7])-1]))
     check=cursor.fetchone()
@@ -325,14 +354,15 @@ def expense():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute('SELECT bamount FROM budget WHERE id = % s ', (e_id, ))
     bud=cursor.fetchone()
-    print("bud is",bud)
  
-    cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a WHERE id = %s AND monthname(date)=%s', (session['id'], session['b_m'] ))
+ 
+    cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a WHERE id = %s AND monthname(date)=%s AND YEAR(date)=%s', (session['id'], session['b_m'],session['y_r'] ))
     data=cursor.fetchall()
+   
   
-    cursor.execute('SELECT SUM(amount) AS tsum FROM expense_a WHERE id = %s AND monthname(date)=%s ', (session['id'],session['b_m'], ))
+    cursor.execute('SELECT SUM(amount) AS tsum FROM expense_a WHERE id = %s AND monthname(date)=%s AND YEAR(date)=%s ', (session['id'],session['b_m'],session['y_r'], ))
     total=cursor.fetchone()
-    print("total is",total)
+   
     session['total']=str(total['tsum'])
    
     
@@ -346,7 +376,7 @@ def expense():
         if data:
             if session['s_m']:
                 flash(u"Expense has been added","success")
-                print("session at aexpense if data" ,session)
+          
                 if (total['tsum']>bud):
                     message = Mail(
                         from_email='noreplyflaskblog1@gmail.com',
@@ -365,8 +395,7 @@ def expense():
                 return redirect(url_for('switch_month',mon=session['s_m'],data=data,budget=int(bud), total=int(total['tsum'])))
             else:
                 flash(u"Expense has been added","success")
-                print("session at aexpense if data" ,session)
-                
+               
                 return redirect(url_for('switch_month',mon=session['b_m'],data=data,budget=int(bud), total=int(total['tsum'])))
         
     else:
@@ -374,7 +403,7 @@ def expense():
         flash(u"Budget not set for the month inputted for the expense","danger")
         return redirect(url_for('dashboard', data=data,budget=int(bud), total=int(total['tsum'])))
 
-@app.route('/uexpense/<string:id>', methods=['GET','POST'])
+@app.route('/uexpense/<string:id>', methods=['POST'])
 def uexpense(id):
 
  
@@ -383,19 +412,28 @@ def uexpense(id):
     ndate=request.form['ndate']
     ndesc=request.form['ndesc']
     cursor = mysql.connection.cursor()
-    cursor.execute('UPDATE expense_a SET amount=%s, category=%s, date=%s, description=%s WHERE ex_id=%s and id=%s ', (nam,ncateg,ndate,ndesc,id,session['id'], ))
-    mysql.connection.commit()
+
+    cursor.execute('SELECT bamount FROM budget WHERE id=%s AND b_month LIKE %s',(session['id'],ndate[0:4]+'-'+month[int(ndate[5:7])-1]))
+    check=cursor.fetchone()
+    if check:
+
+        cursor.execute('UPDATE expense_a SET amount=%s, category=%s, date=%s, description=%s WHERE ex_id=%s and id=%s ', (nam,ncateg,ndate,ndesc,id,session['id'], ))
+        mysql.connection.commit()
     
  
-    try:
-        flash(u"Expense Has Been Updated","succcess")
+        try:
+            flash(u"Expense Has Been Updated","succcess")
+            return redirect(url_for('switch_month',mon=session['s_m']))
+        except:
+
+            return redirect(url_for('dashboard'))
+    else:
+        flash(u"Budget not set for the inputted month/year","danger")
         return redirect(url_for('switch_month',mon=session['s_m']))
-    except:
-
-        return redirect(url_for('dashboard'))
 
 
-@app.route('/delete', methods=['GET','POST'])
+
+@app.route('/delete', methods=['POST'])
 def delete():
 
     da=request.form['del']
@@ -407,19 +445,24 @@ def delete():
     data=cursor.fetchall()
     
     try:
-        return redirect(url_for('switch_month',mon=session['s_m']))
+      
+        #if request.endpoint!=url_for('switch_month',mon=session['s_m']):
+
+         #   return redirect(f"/switchmonth/{session['s_m']}")
+        return redirect(url_for('switch_month',mon=session['s_m']),code=301)
     
     except:
         return redirect(url_for('dashboard'))
 
-@app.route('/dtransactions', methods=['GET','POST'])
+@app.route('/dtransactions', methods=['GET'])
 def download_transactions():
+
     conn=None
     cursor=None
     try:
    
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a WHERE id = % s AND monthname(date)=%s', (session['id'], session['s_m'] ))
+        cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a WHERE id = % s AND monthname(date)=%s AND YEAR(date)=%s', (session['id'], session['s_m'][5:],session['s_m'][0:4] ))
         result=cursor.fetchall()
        
         output=io.StringIO()
@@ -440,15 +483,18 @@ def download_transactions():
         cursor.close()
 
 
-@app.route('/etransactions',methods=['GET','POST'])
+@app.route('/etransactions',methods=['GET'])
 def email_transaction():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    #To obtain the email of the user
     cursor.execute('SELECT email FROM user WHERE id=%s',(session['id'],))
     em=cursor.fetchone()
-    cursor.execute('SELECT amount,category,date,description FROM expense_a WHERE id =%s AND monthname(date)=%s ',(session['id'],session['s_m'],))
+    #To obtain a detailed list of all the expenses as per the chosen time frame.
+    cursor.execute('SELECT amount,category,date,description FROM expense_a WHERE id =%s AND monthname(date)=%s AND YEAR(date)=%s ',(session['id'],session['s_m'][5:],session['s_m'][0:4]))
     result=cursor.fetchall()
+   
     df=pd.DataFrame(result)
-    df_update=df.rename(columns={'amount':'Amount','category':'Category','date':'Date','description':'Description'})
+    df_update=df.rename(columns={'amount':'Amount(in $)','category':'Category','date':'Date','description':'Description'})
     
     df_update.to_csv(r'transaction.csv',index=False)
 
@@ -480,35 +526,15 @@ def email_transaction():
     return redirect(url_for('dashboard'))
 
 
-@app.route('/statistics', methods=['GET','POST'])
+@app.route('/statistics', methods=['GET'])
 def statistics():
-    print("stat session",session)
+
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     #To obtain category & amount from our database
-    cursor.execute('SELECT category,amount FROM expense_a WHERE id = % s AND monthname(date)=%s', (session['id'], session['s_m'] ))
+    cursor.execute('SELECT category,amount FROM expense_a WHERE id = % s AND monthname(date)=%s AND YEAR(date)=%s', (session['id'], session['s_m'][5:],session['s_m'][0:4] ))
     catam = (cursor.fetchall())
-    print("catm is ",catam)
-    #To obtain monthname and sum of expenses for each month
-    cursor.execute('SELECT monthname(date) as m,sum(amount) as a from expense_a WHERE id=%s group by monthname(date) order by monthname(date)DESC  ', (session['id'],))
-    a_month=cursor.fetchall()
-  
-    s_r=[]
- 
-    l={}
-    fc=[]
-    #For Obtaining Months
-    for i in a_month:
-        s_r.append(i['m'])
-    #Sorting the months in ascending order
-    c=Month_Sorted_Month(s_r)
 
-    #For Creating a list 'l' which contains the sorted amounts in the order of the sorted months in variable 'c'
-    for i in range(0,len(a_month)):
-        d=list(a_month[i].values())
-        l[d[0]]=d[1]
-    for j in c:
-        fc.append(int(l[j]))
-    
+   
     #For creating a dictionary 'x' which contains the  Category(key) & Amount(value) of expenses
     x={}
     for i in catam:
@@ -518,19 +544,70 @@ def statistics():
         else:
             x[i["category"]] = i["amount"]
   
-    print(x)
+
     row = list(x.keys())
     col = list(x.values())
     
     session['statnotavail']=False
     if(catam):
-        return render_template('stats.html',row=row,col=col,s_r=c,s_c=fc)
-        print(session)
+        return render_template('stats.html',row=row,col=col)
+  
     else:
-        print(session)
+ 
         session['statnotavail']=True
         no="No expenses available to generate graphical preview"
         return render_template('stats.html',no=no)
+
+@app.route('/statistics/months',methods=['GET'])
+def statm():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    #To obtain monthname and sum of expenses for each month
+    cursor.execute('SELECT monthname(date) as m,sum(amount) as a from expense_a WHERE id=%s AND YEAR(date)=%s  group by monthname(date) order by monthname(date)DESC  ', (session['id'],session['s_m'][0:4]))
+    a_month=cursor.fetchall()
+    fc=[]
+    s_r=[]
+    l={}
+    #For Obtaining Months
+    for i in a_month:
+        s_r.append(i['m'])
+    #Sorting the months in ascending order
+    c=Month_Sorted_Month(s_r)
+
+    for i in range(0,len(a_month)):
+        d=list(a_month[i].values())
+        l[d[0]]=d[1]
+    for j in c:
+        fc.append(int(l[j]))
+    if a_month:
+        
+        return render_template('statsm.html',s_r=c,s_c=fc)
+    else:
+        session['statnotavail']=True
+        no="No expenses available to generate graphical preview"
+        return render_template('stats.html',no=no)
+
+
+
+    
+@app.route('/statistics/years',methods=['GET'])
+def staty():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    #To obtain all years present along with the sum of amounts for each of those years
+    cursor.execute('SELECT   YEAR(date) as ym ,SUM(amount) as a from expense_a WHERE id=%s  group by ym',(session['id'],))
+    allyear=cursor.fetchall()
+    ay=[]
+    sy=[]
+
+    for j in allyear:
+        ay.append(j['ym'])
+        sy.append(int(j['a']))
+    if allyear:
+        return render_template('staty.html',ay=ay,sy=sy)
+    else:
+        session['statnotavail']=True
+        no="No expenses available to generate graphical preview"
+        return render_template('stats.html',no=no)
+
 
 
 @app.route('/logout')
@@ -550,13 +627,17 @@ def logout():
    session.pop("row",None)
    session.pop("column",None)
    session.pop("email",None)
+   session.pop("y_r",None)
+   session.pop("y_m",None)
+   session.pop("years",None)
    session['loggedin']=False
-   print(session)
+   
+
    msg='You have been logged out successfully'
 
    return render_template('main.html', msg=msg)
 
 
-
+PORT=os.environ.get('PORT') or '8080'
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',port='80',debug=True)
+    app.run(host='0.0.0.0',port=PORT,debug=False)

@@ -103,7 +103,17 @@
               <div class="card-body">
                 <h5 class="card-title" >Statistics</h5>
                 <p class="card-text">Click the button below to view the garphical representation of your expenses  .</p>
-                <a href="/statistics" class="btn btn-primary">View</a>
+                {% if session['s_m'] %}
+
+                  <a href="/statistics" class="btn btn-primary">{{session['s_m'][5:]}}</a>
+                  <a href="/statistics/months" class="btn btn-primary">Months</a>
+                  <a href="/statistics/years" class="btn btn-primary">Years</a>
+                {% else %}
+                  <button href="/statistics" class="btn btn-secondary"  disabled>Budget not set</button>
+                
+
+                {% endif %}
+
               </div>
             </div>
 
@@ -158,13 +168,15 @@
         </div>
     {% endif %}
     {% if d_m %}
-        <h4 style="color: aliceblue;">Choose budget month :</h4>
-      
-          {% for i in d_m %}
-          <form action="/switchmonth/{{i}}" method='POST'>
+        
+        
+        <button type="button" class="btn btn-outline-warning" data-toggle="modal" data-target=".bd-choose-modal-sm">Choose Budget Month</button>
+          {% for i in session['y_m'] %}
+          <!-- <form action="/switchmonth/{{i}}" method='POST'>
             <input style="display: none;" value={{i}}>
             <button type="submit" class="btn btn-outline-warning m-2 " >{{i}}</button>
-          </form>
+          </form> -->
+          
           {% endfor %}
        
     {% endif %}
@@ -274,18 +286,7 @@
 
          
                
-               
-               
-               
-               
-               
-               
-               
-               
-               
-               
-               
-               
+
                
                
                   {% endfor %}
@@ -326,11 +327,7 @@
                             {% endfor %}
                           </select>
                       </div>
-                      
-                      <div class="form-group">
-                        <label for="message-text" class="col-form-label">Description:</label>
-                        <textarea class="form-control input-lg" id="message-text"></textarea>
-                      </div>
+                     
                       <div class="modal-footer">
                           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                           <button type="submit" class="btn btn-primary">Set</button>
@@ -363,7 +360,7 @@
                       </div>
                       <div class="form-group">
                         <select name='b_y' class="form-control form-control-sm">
-                          {% for i in range(2021,2101) %}
+                          {% for i in session['years']|unique %}
                             <option>{{i}}</option>
                           {% endfor %}
                         </select>
@@ -376,10 +373,7 @@
                             {% endfor %}
                           </select>
                       </div>
-                      <div class="form-group">
-                        <label for="message-text" class="col-form-label">Description:</label>
-                        <textarea class="form-control" id="message-text"></textarea>
-                      </div>
+                      
                       <div class="modal-footer">
                           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                           <button type="submit" class="btn btn-primary">Update</button>
@@ -391,6 +385,55 @@
               </div>
             </div>
                   
+            
+
+            <div class="modal fade bd-choose-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Choose Budget Month</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <form action="" id="switchmon">
+                      <div class="form-group">
+                        <select class="form-control form-control-sm" id="smy">
+                          {% for i in session['years']|unique %}
+                            <option>{{i}}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <div class="form-group">
+                          <select class="form-control form-control-sm" id="smm">
+                            
+                            {% for i in session['d_m'] %}
+                              <option>{{i}}</option>
+                            {% endfor %}
+                          </select>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Set</button>
+                      </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+
+
+  {% block js %}
+    <script>
+        var form=document.getElementById('switchmon');
+        form.addEventListener('submit',function(e){
+          var month=document.getElementById('smm').value;
+          var year=document.getElementById('smy').value;
+          form.action="/switchmonth/"+year+"-"+month;
+     
+        });
+    </script>
+  {% endblock js %}
          
             
          
