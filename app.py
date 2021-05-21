@@ -308,6 +308,7 @@ def budget():
     cursor.execute('SELECT * FROM budget WHERE id = % s AND bamount = % s', (b_id, budget ))
     account = cursor.fetchone()
     session['budget']=account['bamount']  
+    session['years'].append(b_y)
     flash(u"Budget has been set, Now you can proceed to adding expenses","primary")
 
   
@@ -326,6 +327,7 @@ def updatebudget():
     #To update the required inputs given into the database
     cursor.execute('UPDATE budget SET bamount=%s WHERE id=%s AND b_month=%s',(new_budget,session['id'],n_y+"-"+n_m))
     mysql.connection.commit()
+    session['years'].append(n_y)
     
     flash(u"Budget Updated","success")
     return redirect(url_for('dashboard'))
