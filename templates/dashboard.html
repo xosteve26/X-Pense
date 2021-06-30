@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block header %}
 <header class="container">
-    <h1 class="display-4">Dashboard</h1>   
+    <h1 class="display-4 text-white">Dash<span class="text-warning">board</span> </h1>  
 </header>
    
 {% endblock header %}
@@ -15,7 +15,7 @@
             </div> 
       {% endfor %}
       
-       <div class="row" style="color:black">
+       <div class="row">
         <div class="col-sm-4">
           <div class="card">
             <div class="card-body">
@@ -28,10 +28,10 @@
               {% endif %}
                 <div class="modal fade bd-example-modal-lg" id="st"tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
                   <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
+                    <div class="modal-content bg-dark text-white">
                       <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLabel">Add Expense</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button type="button" class="text-white close" data-dismiss="modal" aria-label="Close">
                           <span aria-hidden="true">&times;</span>
                         </button>
                       </div>
@@ -84,7 +84,7 @@
           <div class="card">
             <div class="card-body">
               <h5 class="card-title">Budget</h5>
-              <p class="card-text">Please set your budget here. </p>
+              <p class="card-text">Click on either of the buttons below to either Create/Update your budget. </p>
               {% if session['budget'] %}
                   <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateModal" data-whatever="@mdo">Update</button>
                   <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">Create</button>
@@ -123,43 +123,50 @@
         <div class="container">
           <div class="row">
             <div class="col-lg-6 mb-4">
-                <div class="card text-white bg-info mb-3" style="max-width: 18rem; text-align: center;">
-                  <div class="card-header"> <h5>Budget</h5> </div>
-                  <div class="card-body">
-                      <h5 class="card-title">Your total budget is :</h5>
-                    <p class="card-text"><h1 class="display-4 "> ${{budget}}</h1>
-                      {%if session['s_m'] %}
-                        <i>For the month of {{session['s_m']}}</i>
-                      {% else %}
-                        <i>For the month of {{session['b_m']}}</i>
-                      {% endif %}
-                    </p>
+                <div class="card text-white mb-3" style="background-color: #6762A6;text-align: center;">
+                  <div class="card-header"> <h5 style="font-family: 'Comic Neue', cursive;font-size: 25px;">Budget</h5> </div>
+                    <div class="card-body">
+                        <h5 style="float:right;width:300px;"class="card-title">Your total budget is :</h5><br>
+                        <h1 style="float:right;font-size: 60px;width:300px;;"class="lead "> ${{budget}}</h1><br>
+
+                        {%if session['s_m'] %}
+                          <i style="float:right;width:300px">For the month of {{session['s_m']}}</i>
+                        {% else %}
+                          <i style="float:right;width:300px">For the month of {{session['b_m']}}</i>
+                        {% endif %}
+                        
+                        <img  style="float:left;position:absolute;top:50px;width:200px;height:150px;margin-top: 20px;"class="img-fluid d-none d-sm-block"src="/static/images/Money jar_Two Color.svg" alt="">
+
+                        
+                      </p>
                   </div>
                 </div> 
             </div>
             {% if total < budget %}
                 <div class="col-lg-6 mb-4">
-                      <div class="card text-white bg-success mb-3" style="max-width: 18rem;float: right;text-align: center;">
-                        <div class="card-header"><h5>Expenses</h5></div>
+                      <div class="card text-white mb-3" style="background-color:#52C755;text-align: center;">
+                        <div class="card-header"><h5 style="font-family: 'Comic Neue', cursive;font-size: 25px;">Expenses</h5></div>
                         <div class="card-body">
-                          <h5 class="card-title">Your total expense is :</h5>
-                          <p class="card-text"> <h1 class="display-4">${{total}}</h1></p>
+                          <h5 style="float:right;width:300px;" class="card-title">Your total expense is :</h5><br>
+                          <h1 style="float:right;font-size: 60px;width:300px;"class="lead">${{total}}</h1><br><br>
                             {%if session['s_m'] %}
-                              <i>For the month of {{session['s_m']}}</i>
+                              <i style="float:right;width:300px">For the month of {{session['s_m']}}</i>
                             {% else %}
-                              <i>For the month of {{session['b_m']}}</i>
+                              <i style="float:right;width:300px">For the month of {{session['b_m']}}</i>
                             {% endif %}
+                            <img  style="position:absolute;top:80px;border-left: 10px;"class="img-fluid w-25 d-none d-sm-block"src="/static/images/undraw_wallet_aym5.svg" alt="">
                         </div>
                       </div>
                 </div>
             {% else %}
                 <div class="col-lg-6 mb-4">
-                  <div class="card text-white bg-danger mb-3" style="max-width: 18rem;float: right;">
-                    <div class="card-header">Expenses : WARNING</div>
+                  <div class="card text-white bg-danger mb-3" >
+                    <div style="text-align: center;"class="card-header"><h5 style="font-family: 'Comic Neue', cursive;font-size: 25px;">Expenses : WARNING</h5></div>
                     <div class="card-body">
                         
-                      <h5 class="card-title">You have excceeded your budget </h5>
-                      <p class="card-text"> <h1 class="display-4">${{total}}</h1></p>
+                      <h5 style="float:right;width:250px;font-size: 25px;"class="card-title">Budget Exceeded </h5><br><br>
+                      <h1 style="float:right;width:250px;float:right"class="display-4">${{total}}</h1>
+                      <img  style="position:absolute;top:65px;border-left: 10px;"class="img-fluid w-25 d-none d-sm-block"src="/static/images/309911.svg" alt="">
                     </div>
                   </div>
                 </div>
@@ -168,30 +175,30 @@
         </div>
     {% endif %}
     {% if d_m %}
-        
+    
+    <span style="width: 250px;height: 50px;">
         
         <button type="button" class="btn btn-outline-warning" data-toggle="modal" data-target=".bd-choose-modal-sm">Choose Budget Month</button>
-          {% for i in session['y_m'] %}
-          <!-- <form action="/switchmonth/{{i}}" method='POST'>
-            <input style="display: none;" value={{i}}>
-            <button type="submit" class="btn btn-outline-warning m-2 " >{{i}}</button>
-          </form> -->
-          
-          {% endfor %}
+    </span>  
+        
        
     {% endif %}
     {% if budget and total %}
-      <div class="ml-auto">
-        <a href="{{url_for('download_transactions')}}"><button type="submit" class="btn btn-info m-2 " >Download Transactions</button></a>
-      </div>
+  
+    <span style="width: 250px;height: 50px;margin-left: 375px;">
+     
+        <a href="{{url_for('download_transactions')}}"><button type="submit" class="btn btn-info m-1 " >Download Transactions</button></a>  
+        
+    
+    </span>
+    <span style="width: 250px;height: 50px;">
+      <a href="{{url_for('email_transaction')}}"><button type="submit" class="btn btn-info m-1 " >Email Transactions</button></a>
+    </span>
 
-      <div class="ml-1">
-        <a href="{{url_for('email_transaction')}}"><button type="submit" class="btn btn-info m-2 " >Email Transactions</button></a>
-      </div>
     {% endif %}
     
             
-            <table class="table table-dark table-striped table-hover container" style="color:white">
+            <table class="table table-dark table-striped table-hover container">
               <thead>
                 <tr>
                   <th scope="col" >Sl.No</th>
@@ -199,6 +206,7 @@
                   <th scope="col">Category</th>
                   <th scope="col">Date</th>
                   <th scope="col">Description</th>
+                  <th scope="col">&nbsp</th>
                   
                 </tr>
               </thead>
@@ -215,24 +223,29 @@
                       <td>{{data[each]['description']}}</td>
           
                       <td>
-                        <a href='/uexpense/{{data[each]['ex_id']}}' class="btn btn-outline-primary" data-toggle="modal" data-target="#myModal{{data[each]['ex_id']}}" id={{data[each]['ex_id']}}>Modify</a>
+                        <a href='/uexpense/{{data[each]['ex_id']}}' class="btn btn-outline-primary" data-toggle="modal" data-target="#myModal{{data[each]['ex_id']}}" id={{data[each]['ex_id']}}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                          <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                        </svg></a>
                         |
                         <form style="display: inline;" action='/delete' method='POST'>
                           <input value={{data[each]['ex_id']}} name="del" style="display: none;">
-                          <button type="submit" class="btn btn-outline-danger">Delete</button>
+                          <button type="submit" class="btn btn-outline-danger"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                            <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
+                          </svg></button>
+                          
                         </form>
-                        <!-- <button type="submit" class="btn btn-outline-primary" data-toggle="modal" data-target="#myModal" id={{each['ex_id']}}>Modify </button> -->
+                        
                       </td>
                   </tr>
                
 <div class="modal fade" id="myModal{{data[each]['ex_id']}}">
   <div class="modal-dialog modal-lg">
-    <div class="modal-content">
+    <div class="modal-content bg-dark text-white">
               
         <!-- Modal Header -->
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLabel">Update Expense</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
@@ -296,10 +309,10 @@
 
             <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
               <div class="modal-dialog" role="document">
-                <div class="modal-content">
+                <div class="modal-content bg-dark text-white">
                   <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Set Budget</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                     </button>
                   </div>
@@ -341,10 +354,10 @@
             
             <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
               <div class="modal-dialog" role="document">
-                <div class="modal-content">
+                <div class="modal-content bg-dark text-white">
                   <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Update Budget</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="text-white close" data-dismiss="modal" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                     </button>
                   </div>
@@ -389,10 +402,10 @@
 
             <div class="modal fade bd-choose-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
               <div class="modal-dialog modal-sm">
-                <div class="modal-content">
+                <div class="modal-content bg-dark text-white">
                   <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Choose Budget Month</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                     </button>
                   </div>

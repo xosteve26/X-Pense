@@ -2,8 +2,9 @@
 <html>
     <head>
         <link rel="shortcut icon" href="{{ url_for('static',filename='favicon.ico') }}">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-        <!-- <link rel="stylesheet" href="css/style.css"> -->
+        <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
+        <link rel="stylesheet" href="/static/css/style.css">
+        <script src="https://unpkg.com/scrollreveal@4.0.0/dist/scrollreveal.min.js"></script>
         
         
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
@@ -18,17 +19,19 @@
         href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
         rel="stylesheet"
         />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+        
         
       </head>
-    <header>
+      <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+          <div class="container-fluid m-2">
             <a class="navbar-brand" href="/home">X-Pense Tracker</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
             </button>
-          
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-              <ul class="navbar-nav mr-auto">
+              <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item active">
                   <a class="nav-link" href="/home">Home <span class="sr-only">(current)</span></a>
                 </li>
@@ -38,45 +41,41 @@
                 <li class="nav-item">
                   <a class="nav-link" href="/dashboard">Dashboard</a>
                 </li>
-                
-               
               </ul>
-              <nav class="navbar navbar-dark bg-dark">
-                <form class="form-inline" action="/login" method="POST">
-                  <div class="input-group">
-                    <div class="input-group-prepend">    
-                        </div>
-                          {% if msg=="Account doesn't not exist" %}
-                            <div style="color:red" class="mr-3 mt-2">{{ msg }}</div>
-                          {% else %}
-                            <div style="color:green" class="mr-3 mt-2">{{ msg }}</div>
-                          {% endif %}
-                          {% if session['id'] %}
-                              <button  type="button" class="btn btn-warning mt-3 mr-3" id="donate" > Username : {{session['username']}}</button>
-                              
-                              <a  type="button" class="btn btn-outline-success mt-3 mr-3" id="donate" href="/logout">LOGOUT</a>
-                          {% else %}
-                            <input type="text" name='username' class="form-control mr-sm-2" placeholder="Username" aria-label="uname" aria-describedby="basic-addon1"><br>
-                            <input type="password" name='password' class="form-control mr-sm-2" placeholder="Password" aria-label="password" aria-describedby="basic-addon1">
-                            <button class="btn btn-outline-success mr-sm-2" type="submit">Login</button>
-                          {% endif %}
-                        </div>
-                </form>
-              </nav>
+              
+              <form class="d-flex" action="/login" method="POST">
+                {% if session['id'] %}
+                  <button  type="button" class="btn btn-warning " id="donate" > Username : {{session['username']}}</button> <span>&nbsp</span>
+                  <a  type="button" class="btn btn-outline-success" id="donate" href="/logout">LOGOUT</a>
+                {% else %}
+                  <input type="text" name='username' class="form-control me-2" placeholder="Username" aria-label="uname" aria-describedby="basic-addon1">
+                  <input type="password" name='password' class="form-control me-2" placeholder="Password" aria-label="password" aria-describedby="basic-addon1">
+                  <button class="btn btn-outline-success" type="submit">Login</button>
+                {% endif %}
+              </form>
             </div>
-          </nav>
+          </div>
+        </nav>
+        
     </header>
+    <body class="bg-dark">
+      {% if msg=="Account doesn't not exist" %}
+          <div style="color:red" class="mr-3 mt-2">{{ msg }}</div>
+      {% else %}
+          <div style="color:green" class="mr-3 mt-2">{{ msg }}</div>
+      {% endif %}
     <div style="color:red" class="mr-3 mt-2">{{ wa }}</div>
-    <body style="background-color: #292b2c;">
-        <div class="jumbotron">
-          
-
-              <h1 class="display-4">Expense Tracker</h1>
+    
+      <section class="bg-dark text-light p-5 text-center text-sm-start">
+        <div class="container">
+          <div class="d-sm-flex align-items-center justify-content-between">
+            <div class="left-text">
+              <h1 class="display-4">Expense <span class="text-warning">Tracker</span></h1>
               {% if session['loggedin'] %}
-                <p class="lead">Welcome to a whole new atmosphere of expense management {{session['username']}}</p>
+                <p class="lead my-4">Welcome to a whole new atmosphere of expense management <b class="text-success">{{session['username']}}</b></span></p>
                 <hr class="my-4">
-                <p>Please click on the button below to go to you dahsboard.</p>
-                <p class="lead">  
+                <p class="lead">Please click on the button below to go to you dahsboard.</p>
+                <p class="regbtn lead">  
                     <a class="btn btn-outline-primary btn-lg" href="/dashboard" role="button">Dashboard</a>
                     {{sample}}
                 </p>
@@ -87,57 +86,132 @@
                 <hr class="my-4">
                 <p>Click on the button below to create an account</p>
                 <p class="lead">  
-                    <a class="btn btn-outline-primary btn-lg" href="/register" role="button">Register</a>
+                    <a class="regbtn btn btn-outline-primary btn-lg" href="/register" role="button">Register</a>
                     {{sample}}
                 </p>
               {% endif %}
                 
               
-              
+            </div>
+            <img  class="img-fluid w-50 d-none d-sm-block"src="/static/images/pic2.svg" alt="">
           </div>
+        </div>
+      </section>
+      <section style="background-color: #8AB2E0" class="text-light p-5">
+        <div class="container">
+          <div class="d-md-flex justify-content-between align-items-center">
+            <h3 class="text-dark mb-3 mb-md-0">We Value Your Feedback</h3>
+  
+            <div class="mx-4 input-group mb-3">
+              <input type="text" class="form-control" placeholder="Enter Your Username" aria-label="Username" aria-describedby="basic-addon2">
+    
+            </div>   
+            <div class="mx-3 input-group mb-3">
+              <input type="text" class="form-control" placeholder="Enter Your Feedback" aria-label="Feedback" aria-describedby="basic-addon1">  
+            </div> 
+            <button class="mb-3 btn btn-dark" type="button">Submit</button>  
+                  
+          </div>
+          
+        </div>
+        
+      </section>
+      <section style="font-family: 'Comic Neue', cursive;"class="p-5">
+        <div class="container">
+          <div style="left: 50%;right: 50%;">
+            <h3 class="display-6 text-white text-center">Why Choose Us?</h3>
+            <br>
+          </div>
+          <br>
+
+          <div style="padding-bottom: 30px;"class=" row text-center g-4">
+            <div class="col-md">
+              <div style="background-color: #F3CCB8"class="fcd card text-dark">
+                <div class="card-body text-center">
+                  <div class="h1 mb-3">
+                    <i class="bi bi-people"></i>
+                  </div>
+                  <h3 class="card-title mb-3">User Friendly</h3>
+                  <p style="font-weight: 300;"class="card-text">
+                    We strive to provide our customers with an ease and fluid movement through our user interface.
+                  </p>
+                  
+                </div>
+              </div>
+            </div>
+            <div class="col-md">
+              <div style="background-color: #C5D0EB"class="scd card text-dark">
+                <div class="card-body text-center">
+                  <div class="h1 mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-coin" viewBox="0 0 16 16">
+                      <path d="M5.5 9.511c.076.954.83 1.697 2.182 1.785V12h.6v-.709c1.4-.098 2.218-.846 2.218-1.932 0-.987-.626-1.496-1.745-1.76l-.473-.112V5.57c.6.068.982.396 1.074.85h1.052c-.076-.919-.864-1.638-2.126-1.716V4h-.6v.719c-1.195.117-2.01.836-2.01 1.853 0 .9.606 1.472 1.613 1.707l.397.098v2.034c-.615-.093-1.022-.43-1.114-.9H5.5zm2.177-2.166c-.59-.137-.91-.416-.91-.836 0-.47.345-.822.915-.925v1.76h-.005zm.692 1.193c.717.166 1.048.435 1.048.91 0 .542-.412.914-1.135.982V8.518l.087.02z"/>
+                      <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                      <path fill-rule="evenodd" d="M8 13.5a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zm0 .5A6 6 0 1 0 8 2a6 6 0 0 0 0 12z"/>
+                    </svg>
+                  </div>
+                  <h3 class="card-title mb-3">Easy Management</h3>
+                  <p style="font-weight: 300;"class="card-text">
+                    X-Pense facilitates efficient asset management and accounting. Create budgets/Add expenses with ease.
+                  </p>
+                  
+                </div>
+              </div>
+            </div>
+            <div class="col-md">
+              <div style="background-color:#A8C898;"class="tcd card text-dark">
+                <div class="card-body text-center">
+                  <div class="h1 mb-3">
+                    <i class="bi bi-graph-up"></i>
+                  </div>
+                  <h3 class="card-title mb-3">Analysis</h3>
+                  <p style="font-weight: 300;"class="card-text">
+                    We provide an insight into your spending habits using which can help in managing your wealth more efficiently.
+                  </p>
+                  
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <hr style="color: white;">
+        
     </body>
-    <footer class="bg-dark text-center text-white">
+    <footer class="bg-dark text-white">
       <!-- Grid container -->
-      <div class="container p-4 ">
-        <div class="row">
-          <!--Grid column-->
-          <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
-            <h5 class="text-uppercase">Contact Info :</h5>
-  
-            <p>
-              E-Mail:
-              <br>
-              Phone Number :
-              <br>
-              Website:
-              <br>
-              Address:
-            </p>
+      <section class="p-5">
+        <div class="container">
+          <div class="row g-4">
+            <div class="contact col-md">
+              <h2 class="text-center mb-4">Contact Info</h2><hr style="left: 50%;right: 50%;">
+              <ul class="list-group list-group-flush lead">
+                <li class="list-group-item bg-dark">
+                  <span class="fw-bold text-white">Main Location: </span><span class="text-white">31st Main street Carrera 80,Bosa, Bogotá, Colombia</span>
+                </li><br>
+                <li class="list-group-item bg-dark">
+                  <span class="fw-bold text-white">Phone Number: </span><span class="text-white">+57-8786545675</span>
+                </li><br>
+                <li class="list-group-item bg-dark">
+                  <span class="fw-bold text-white">E-Mail: </span><span class="text-white">noreplyflaskblog@gmail.com</span>
+                </li><br>
+                <li class="list-group-item bg-dark">
+                  <span class="fw-bold text-white">Website: </span><span class="text-white">www.testpurposelink.com</span>
+                </li>
+                
+              </ul>
+            </div>
+            <div class="col-md">
+              <div class="map">
+                <iframe style="border-radius: 20px;" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5375.890915293896!2d-74.1789501215042!3d4.612265472640265!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f9bfd2da6cb29%3A0x239d635520a33914!2sBogot%C3%A1%2C%20Bogota%2C%20Colombia!5e0!3m2!1sen!2sin!4v1624976319078!5m2!1sen!2sin" width="520" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+              </div>
+            </div>
           </div>
-          <!--Grid column-->
-  
-          <!--Grid column-->
-          <div class="col-lg-6 col-md-6 mb-6 mb-md-0">
-            <h5 class="text-uppercase">Links</h5>
-  
-            <ul class="list-unstyled mb-0">
-              <li>
-                <a href="#!" class="text-white">abc@gmail.com</a>
-              </li>
-              <li>
-                <a href="#!" class="text-white">+91-8796567896</a>
-              </li>
-              <li>
-                <a href="https://www.youtube.com/" class="text-white" target="_blank">www.xyz.com</a>
-              </li>
-              <li>
-                <a href="#!" class="text-white">abc,21st Street , XYZ- 230080</a>
-              </li>
-            </ul>
-          </div>
-      </div>
+        </div>
+      </section>
+      
         <!-- Section: Social media -->
-        <section class="mb-4">
+        <hr>
+        <section class=" socialm bg-dark mb-4 text-center">
           <!-- Facebook -->
           <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"
             ><i class="fab fa-facebook-f"></i
@@ -179,4 +253,80 @@
       </div>
       <!-- Copyright -->
     </footer>
+
+    <script
+  src="https://code.jquery.com/jquery-3.6.0.js"
+  integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+  crossorigin="anonymous"></script>
+
+  <script>
+    window.sr=ScrollReveal()
+    sr.reveal('.navbar',{
+      duration: 2000,
+      origin:'bottom'
+    });
+    sr.reveal('.img-fluid',{
+      duration: 2000,
+      origin:'top',
+      distance:'300px'
+    });
+    sr.reveal('.left-text',{
+      duration: 2000,
+      origin:'left',
+      distance:'300px'
+    });
+    sr.reveal('.regbtn',{
+      duration: 1500,
+      delay:1000,
+      origin:'bottom',
+    });
+    sr.reveal('.fcd',{
+      duration: 2000,
+      origin:'left',
+      distance:'300px',
+      rotate:{
+        x:50,
+        y:50
+      },
+      viewFactor:0.2
+    });
+    sr.reveal('.scd',{
+      duration: 2000,
+      origin:'top',
+      distance:'300px',
+      rotate:{
+        x:50,
+        y:50
+      },
+      viewFactor:0.2
+    });
+    sr.reveal('.tcd',{
+      duration: 2000,
+      origin:'right',
+      distance:'300px',
+      rotate:{
+        x:50,
+        y:50
+      },
+      viewFactor:0.2
+    });
+    sr.reveal('.map',{
+      duration:1000,
+      origin:'right',
+      distance:'150%'
+    });
+    sr.reveal('.contact',{
+      duration:1000,
+      origin:'left',
+      distance:'150%',
+      opacity:null
+    });
+    sr.reveal('.socialm',{
+    
+      duration: 1000,
+      delay:500,
+      origin:'bottom',
+  });
+  </script>
+
 </html>
