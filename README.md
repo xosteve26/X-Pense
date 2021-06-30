@@ -1,5 +1,9 @@
 # X-Pense : A Personalised Expense Tracker #
 
+Application Demo : <https://youtu.be/rjsxO4KjXak>
+
+Project Report : <https://drive.google.com/file/d/1xaqs3_mScAYdkXRmX1f3zjNREYJDPYeW/view?usp=sharing>
+
 The objective of this project was to provide a user- friendly application, that could make the process of managing one’s expenses in an easier and effective manner by providing insightful charts that will help the user to derive useful data from it and understand where his finances are being consumed, which could in turn help him to manage his expenditures in a more coherent manner.This app has been successfully deployed on the TANZU APPLICATION SERVICE.
 This project showcases the implementation of an expense tracker which was made using Python FLASK, MySQL and the fundamental web development technologies like HTML, CSS & JS.
 This app provides the end users the following features:
