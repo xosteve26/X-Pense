@@ -3,6 +3,7 @@
 <head>
     <link rel="shortcut icon" href="{{ url_for('static',filename='favicon.ico') }}">
     
+    
  
                 <header>
                     
@@ -17,9 +18,11 @@
                             <li class="nav-item active">
                             <a class="nav-link" href="/home">Home <span class="sr-only">(current)</span></a>
                             </li>
-                            <li class="nav-item">
-                            <a class="nav-link" href="/register">Register</a>
-                            </li>
+                            {% if not session['id'] %}
+                                <li class="nav-item">
+                                <a class="nav-link" href="/register">Register</a>
+                                </li>
+                            {% endif %}
                             <li class="nav-item">
                             <a class="nav-link" href="/dashboard">Dashboard</a>
                             </li>
@@ -50,9 +53,14 @@
                                     </div>
                             </form>
                         </nav>
+                        
                         </div>
+                         
                     </nav>
+                    <hr style="color: #00C2FF;">
+                   
             </header>
+            
     {% block header %}
     
     {% endblock header %}
@@ -72,10 +80,11 @@
         <!-- <link rel="icon" href="/assets/img/favicon.ico" type="image/x-icon"> -->
         <link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-32x32.png">
         <!-- bootstrap css cdn -->
+        <link rel="stylesheet" href="F:\Expense Main\assets\css\style.css">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
         <!-- css stylesheet -->
-        <!-- <link rel="stylesheet" href="css/style.css"> -->
+        <link rel="stylesheet" href="/static/css/style.css">
         <!-- font styles cdn -->
         <link rel="preconnect" href="https://fonts.gstatic.com">
         <link href="https://fonts.googleapis.com/css2?family=PT+Sans&display=swap" rel="stylesheet">
@@ -83,8 +92,10 @@
         <link href="https://fonts.googleapis.com/css2?family=Alegreya&display=swap" rel="stylesheet">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
         <link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@600&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
 </head>
-<body style="background-color: #292b2c;color: white;scroll-behavior: smooth;" class="container-fluid">
+<body style="scroll-behavior: smooth;" class="container-fluid bg-dark">
     {% block content %}
     {% endblock %}
 </body>

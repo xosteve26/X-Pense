@@ -1,1 +1,9 @@
 .env
+node_modules/**
+assets/**
+scss/**
+package-lock.json
+package.json
+templates/test.html
+docker-compose.yml
+Dockerfile
