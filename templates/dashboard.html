@@ -123,50 +123,53 @@
         <div class="container">
           <div class="row">
             <div class="col-lg-6 mb-4">
-                <div class="card text-white mb-3" style="background-color: #6762A6;text-align: center;">
-                  <div class="card-header"> <h5 style="font-family: 'Comic Neue', cursive;font-size: 25px;">Budget</h5> </div>
-                    <div class="card-body">
-                        <h5 style="float:right;width:300px;"class="card-title">Your total budget is :</h5><br>
-                        <h1 style="float:right;font-size: 60px;width:300px;;"class="lead "> ${{budget}}</h1><br>
+                <div class="card text-white mb-3" style="background-color: #523a78;
+                background-image: linear-gradient(316deg, #523a78 0%, #ee696b 74%);text-align: center;">
+                  <div class="card-header"><h5 style="font-family: 'Comic Neue', cursive;font-size: 25px;">Budget</h5></div>
+                  <div class="card-body d-flex flex-column align-items-end">
+                      <img  style="position: absolute;left:40px;bottom:2px;width: 35%;"class="img-fluid  p-2 mr-auto my-flex-item"src="/static/images/money-bag-svgrepo-com.svg" alt="">
+                      <h5 style="width: 50%;font-size: 25px;" class="card-title p-2 my-flex-item position-relative">Your budget is :</h5>
+                      <h1 style="width: 50%;font-size: 60px;" class="lead p-2 my-flex-item position-relative">${{budget}}</h1>
 
                         {%if session['s_m'] %}
-                          <i style="float:right;width:300px">For the month of {{session['s_m']}}</i>
+                          <i  style="width: 50%;" class="p-2 my-flex-item  position-relative">For the month of {{session['s_m']}}</i>
                         {% else %}
-                          <i style="float:right;width:300px">For the month of {{session['b_m']}}</i>
+                          <i  style="width: 50%;" class="p-2 my-flex-item  position-relative">For the month of {{session['b_m']}}</i>
                         {% endif %}
-                        
-                        <img  style="float:left;position:absolute;top:50px;width:200px;height:150px;margin-top: 20px;"class="img-fluid d-none d-sm-block"src="/static/images/Money jar_Two Color.svg" alt="">
-
-                        
-                      </p>
                   </div>
                 </div> 
             </div>
             {% if total < budget %}
                 <div class="col-lg-6 mb-4">
-                      <div class="card text-white mb-3" style="background-color:#52C755;text-align: center;">
+                      <div class="card text-white mb-3" style="background-color: #3bb78f;
+                      background-image: linear-gradient(315deg, #3bb78f 0%, #0bab64 74%);text-align: center;">
                         <div class="card-header"><h5 style="font-family: 'Comic Neue', cursive;font-size: 25px;">Expenses</h5></div>
-                        <div class="card-body">
-                          <h5 style="float:right;width:300px;" class="card-title">Your total expense is :</h5><br>
-                          <h1 style="float:right;font-size: 60px;width:300px;"class="lead">${{total}}</h1><br><br>
-                            {%if session['s_m'] %}
-                              <i style="float:right;width:300px">For the month of {{session['s_m']}}</i>
-                            {% else %}
-                              <i style="float:right;width:300px">For the month of {{session['b_m']}}</i>
-                            {% endif %}
-                            <img  style="position:absolute;top:80px;border-left: 10px;"class="img-fluid w-25 d-none d-sm-block"src="/static/images/undraw_wallet_aym5.svg" alt="">
-                        </div>
+                            <div class="card-body d-flex flex-column align-items-end">
+                              <img style="position: absolute;left:40px;bottom:35px;width: 40%;"class="img-fluid  p-2 mr-auto my-flex-item"src="/static/images/undraw_wallet_aym5.svg" alt="">
+                          
+                                <h5 style="width: 50%;font-size: 25px;" class="card-title p-2 my-flex-item position-relative">Your total expense is :</h5>
+                                <h1 style="width: 50%;font-size: 60px;" class="lead p-2 my-flex-item position-relative">${{total}}</h1>
+                                {%if session['s_m'] %}
+                                  <i style="width: 50%;" class="p-2 my-flex-item  position-relative">For the month of {{session['s_m']}}</i>
+                                {% else %}
+                                  <i style="width: 50%;" class="p-2 my-flex-item  position-relative">For the month of {{session['b_m']}}</i>
+                                {% endif %}
+                            </div>
                       </div>
                 </div>
             {% else %}
                 <div class="col-lg-6 mb-4">
-                  <div class="card text-white bg-danger mb-3" >
+                  <div class="card text-white bg-danger mb-3" style="background-color: #99201c;
+                  background-image: linear-gradient(316deg, #99201c 0%, #f56545 74%);
+                  
+                  " >
                     <div style="text-align: center;"class="card-header"><h5 style="font-family: 'Comic Neue', cursive;font-size: 25px;">Expenses : WARNING</h5></div>
-                    <div class="card-body">
+                    <div class="card-body d-flex flex-column align-items-end">
+                      <img  style="position: absolute;left:40px;bottom:35px;width: 40%;"class="img-fluid w-25 d-none d-sm-block"src="/static/images/309911.svg" alt="">
                         
-                      <h5 style="float:right;width:250px;font-size: 25px;"class="card-title">Budget Exceeded </h5><br><br>
-                      <h1 style="float:right;width:250px;float:right"class="display-4">${{total}}</h1>
-                      <img  style="position:absolute;top:65px;border-left: 10px;"class="img-fluid w-25 d-none d-sm-block"src="/static/images/309911.svg" alt="">
+                      <h5 style="width: 50%;font-size: 25px;" class="card-title p-2 my-flex-item position-relative">Budget Exceeded </h5>
+                      <h1 style="width: 50%;font-size: 60px;" class="lead p-2 my-flex-item position-relative">${{total}}</h1><br><br>
+                      
                     </div>
                   </div>
                 </div>
@@ -174,7 +177,9 @@
           </div> 
         </div>
     {% endif %}
-    {% if d_m %}
+    <div class="container">
+      {% if d_m %}
+    
     
     <span style="width: 250px;height: 50px;">
         
@@ -184,18 +189,22 @@
        
     {% endif %}
     {% if budget and total %}
+    <span style="width: 250px;height: 50px;float: right;">
+      <a href="{{url_for('email_transaction')}}"><button type="submit" class="btn btn-success m-1 " >Email Transactions</button></a>
+    </span>
   
-    <span style="width: 250px;height: 50px;margin-left: 375px;">
+    <span style="width: 250px;height: 50px;float: right;">
      
-        <a href="{{url_for('download_transactions')}}"><button type="submit" class="btn btn-info m-1 " >Download Transactions</button></a>  
+        <a href="{{url_for('download_transactions')}}"><button type="submit" class="btn btn-success m-1 " >Download Transactions</button></a>  
         
     
     </span>
-    <span style="width: 250px;height: 50px;">
-      <a href="{{url_for('email_transaction')}}"><button type="submit" class="btn btn-info m-1 " >Email Transactions</button></a>
-    </span>
+    
 
     {% endif %}
+
+    </div>
+    
     
             
             <table class="table table-dark table-striped table-hover container">
