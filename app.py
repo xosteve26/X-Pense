@@ -19,7 +19,7 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True}
 def start_db():
 
     conn = psycopg2.connect(
-    database="dafbundbqku1bs", user='eknndneoxhdwha', password='4477c75bae9d062fdd87049da421d47e93c62eab984edb1e4398c8dc480ab4f4', host='ec2-107-21-10-179.compute-1.amazonaws.com', port= '5432'
+    database="dafbundbqku1bs", user=os.environ.get('db_username'), password=os.environ.get('db_password'), host=os.environ.get('db_host'), port= os.environ.get('db_port')
     )
     return conn
 start_db()
@@ -28,10 +28,7 @@ start_db()
 
 app.secret_key = 'a'
 app.config['DATABASE_URL']=os.environ.get('DATABASE_URL')
-#app.config['MYSQL_HOST'] = 'remotemysql.com'
-#app.config['MYSQL_USER'] = '9CaX90ZO70'
-#app.config['MYSQL_PASSWORD'] = '3ZvAjIocQr'
-#app.config['MYSQL_DB'] = '9CaX90ZO70'
+
 
 
 mysql = MySQL(app)
