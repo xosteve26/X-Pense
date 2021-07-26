@@ -2,6 +2,9 @@
 {% block header %}
 <header class="container">
     <h1 class="display-4 text-white">Dash<span class="text-warning">board</span> </h1>  
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@300;700&display=swap" rel="stylesheet"> -->
 </header>
    
 {% endblock header %}
@@ -15,12 +18,13 @@
             </div> 
       {% endfor %}
       
-       <div class="row">
-        <div class="col-sm-4">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">Add Expenses</h5>
-              <p class="card-text">Click on the button below to add your daily expenses.</p>
+       <div class="row" >
+        <div class="col-sm-4 ">
+          <div class="card" style="background-color: #310e68;
+          background-image: linear-gradient(316deg, #310e68 0%, #5f0f40 74%);">
+            <div class="card-body" style="color: white;">
+              <h5 class="card-title" >Add Expenses<hr> <img style="float: right;"src="https://img.icons8.com/ios-filled/48/26e07f/plus.png"/></h5>
+              <p class="card-text">Click on the button below to add your daily expenses to your current budget period.</p>
               {% if session['budget']%}
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#st">Add</button>
               {%else%}
@@ -81,9 +85,10 @@
           </div>
         </div>
         <div class="col-sm-4 mb-sm-5">
-          <div class="card">
+          <div class="card" style="background-color: #310e68;
+          background-image: linear-gradient(316deg, #310e68 0%, #5f0f40 74%);color: white;">
             <div class="card-body">
-              <h5 class="card-title">Budget</h5>
+              <h5 class="card-title" >Budget <hr><img style="float: right;"src="https://img.icons8.com/ios-filled/48/26e07f/check-dollar.png"/></h5>
               <p class="card-text">Click on either of the buttons below to either Create/Update your budget. </p>
               {% if session['budget'] %}
                   <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateModal" data-whatever="@mdo">Update</button>
@@ -99,9 +104,11 @@
         </div>
         
         <div class="col-sm-4">
-            <div class="card">
+            <div class="card" style="background-color: #310e68;
+            background-image: linear-gradient(316deg, #310e68 0%, #5f0f40 74%);
+            color: white;">
               <div class="card-body">
-                <h5 class="card-title" >Statistics</h5>
+                <h5 class="card-title">Statistics <hr><img style="float: right;"src="https://img.icons8.com/ios-filled/48/26e07f/bullish.png"/></h5>
                 <p class="card-text">Click the button below to view the garphical representation of your expenses  .</p>
                 {% if session['s_m'] %}
 
@@ -139,7 +146,7 @@
                   </div>
                 </div> 
             </div>
-            {% if total < budget %}
+            {% if total < 0.75*budget %}
                 <div class="col-lg-6 mb-4">
                       <div class="card text-white mb-3" style="background-color: #3bb78f;
                       background-image: linear-gradient(315deg, #3bb78f 0%, #0bab64 74%);text-align: center;">
@@ -147,7 +154,7 @@
                             <div class="card-body d-flex flex-column align-items-end">
                               <img style="position: absolute;left:40px;bottom:35px;width: 40%;"class="img-fluid  p-2 mr-auto my-flex-item"src="/static/images/undraw_wallet_aym5.svg" alt="">
                           
-                                <h5 style="width: 50%;font-size: 25px;" class="card-title p-2 my-flex-item position-relative">Your total expense is :</h5>
+                                <h5 style="width: 50%;font-size: 25px;" class="card-title p-2 my-flex-item position-relative">Your total expenses :</h5>
                                 <h1 style="width: 50%;font-size: 60px;" class="lead p-2 my-flex-item position-relative">${{total}}</h1>
                                 {%if session['s_m'] %}
                                   <i style="width: 50%;" class="p-2 my-flex-item  position-relative">For the month of {{session['s_m']}}</i>
@@ -157,6 +164,25 @@
                             </div>
                       </div>
                 </div>
+            {% elif total >= 0.75*budget and total < budget %}
+                <div class="col-lg-6 mb-4">
+                  <div class="card text-white mb-3" style="background-color: #f39f86;
+                  background-image: linear-gradient(315deg, #f39f86 0%, #f9d976 74%);text-align: center;">
+                    <div class="card-header"><h5 style="font-family: 'Comic Neue', cursive;font-size: 25px;">Expenses : 75% Of Budget Consumed</h5></div>
+                        <div class="card-body d-flex flex-column align-items-end">
+                          <img style="position: absolute;left:40px;bottom:35px;width: 28%;"class="img-fluid  p-2 mr-auto my-flex-item"src="/static/images/alert.png" alt="">
+                      
+                            <h5 style="width: 50%;font-size: 25px;" class="card-title p-2 my-flex-item position-relative">Your total expenses :</h5>
+                            <h1 style="width: 50%;font-size: 60px;" class="lead p-2 my-flex-item position-relative">${{total}}</h1>
+                            {%if session['s_m'] %}
+                              <i style="width: 50%;" class="p-2 my-flex-item  position-relative">For the month of {{session['s_m']}}</i>
+                            {% else %}
+                              <i style="width: 50%;" class="p-2 my-flex-item  position-relative">For the month of {{session['b_m']}}</i>
+                            {% endif %}
+                        </div>
+                  </div>
+            </div>
+                
             {% else %}
                 <div class="col-lg-6 mb-4">
                   <div class="card text-white bg-danger mb-3" style="background-color: #99201c;
@@ -168,7 +194,12 @@
                       <img  style="position: absolute;left:40px;bottom:35px;width: 40%;"class="img-fluid w-25 d-none d-sm-block"src="/static/images/309911.svg" alt="">
                         
                       <h5 style="width: 50%;font-size: 25px;" class="card-title p-2 my-flex-item position-relative">Budget Exceeded </h5>
-                      <h1 style="width: 50%;font-size: 60px;" class="lead p-2 my-flex-item position-relative">${{total}}</h1><br><br>
+                      <h1 style="width: 50%;font-size: 60px;" class="lead p-2 my-flex-item position-relative">${{total}}</h1>
+                      {%if session['s_m'] %}
+                              <i style="width: 50%;" class="p-2 my-flex-item  position-relative">For the month of {{session['s_m']}}</i>
+                      {% else %}
+                              <i style="width: 50%;" class="p-2 my-flex-item  position-relative">For the month of {{session['b_m']}}</i>
+                      {% endif %}
                       
                     </div>
                   </div>
@@ -420,20 +451,13 @@
                   </div>
                   <form action="" id="switchmon">
                       <div class="form-group">
-                        <select class="form-control form-control-sm" id="smy">
-                          {% for i in session['years']|unique %}
+                        <select class="form-control form-control-sm" id="smmt">
+                          
+                          {% for i in session['full_ym'] | sort %}
                             <option>{{i}}</option>
                           {% endfor %}
                         </select>
-                      </div>
-                      <div class="form-group">
-                          <select class="form-control form-control-sm" id="smm">
-                            
-                            {% for i in session['d_m'] %}
-                              <option>{{i}}</option>
-                            {% endfor %}
-                          </select>
-                      </div>
+                    </div>
                       <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-primary">Set</button>
@@ -449,9 +473,9 @@
     <script>
         var form=document.getElementById('switchmon');
         form.addEventListener('submit',function(e){
-          var month=document.getElementById('smm').value;
-          var year=document.getElementById('smy').value;
-          form.action="/switchmonth/"+year+"-"+month;
+          var full_ym=document.getElementById('smmt').value;
+          // var year=document.getElementById('smy').value;
+          form.action="/switchmonth/"+full_ym;
      
         });
     </script>

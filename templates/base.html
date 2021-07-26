@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
     <link rel="shortcut icon" href="{{ url_for('static',filename='favicon.ico') }}">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
     
     
  
                 <header>
                     
                     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                        <a class="navbar-brand" href="/home">X-Pense Tracker</a>
+                        <a class="navbar-brand" href="/home" style="font-family: 'Fjalla One', sans-serif;">X-Pense</a>
                         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
                         </button>
@@ -42,7 +43,7 @@
                                     {% if session['id'] %}
                                         <!-- <a  type="button" class="btn btn-outline-success mt-3 mr-3" id="donate" href="/logout">LOGOUT</a> -->
                                         <button  type="button" class="btn btn-warning mt-3 mr-3" id="donate" > Username : {{session['username']}}</button>
-                                        <a  style="float:right"type="button" class="btn btn-outline-primary mt-3 mr-3" id="donate" href="/home">HOME</a>
+                                        
                                         <a  style="float:right"type="button" class="btn btn-outline-success mt-3 mr-3" id="donate" href="/logout">LOGOUT</a>
                                         
                                     {% else %}
@@ -70,6 +71,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expense App</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.25/datatables.min.css"/>
+ 
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.25/datatables.min.js"></script>
+
     
  
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -91,6 +96,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com">
         <link href="https://fonts.googleapis.com/css2?family=Alegreya&display=swap" rel="stylesheet">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Fjalla+One&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@600&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet">

@@ -28,13 +28,14 @@
 {% else %}
 
 
-  <div class="row ">
+  <div class="row " >
     <!-- chart morris start -->
     <div class="col-lg-12 " >
       <section class="panel">
         <header class="panel-heading">
-          <h3>Charts for the month of {{session['s_m'][5:]}}</Char>
-              </header>
+          <!-- <h3 style="color: white;">Charts for the month of {{session['s_m'][5:]}}</h3> -->
+          <h1 class="display-4 text-white">Budget Period: <span class="text-warning">{{session['s_m']}}</span> </h1>  <br>
+        </header>
               <div class="panel-body">
                 <div class="tab-pane" id="chartjs">
               <div class="row">                 
@@ -49,14 +50,14 @@
                         </div>
                     </section>
                   </div>
-                  <!-- Radar -->
+                  <!-- Doughnut -->
                   <div class="col-lg-6" style="border:1px solid #6600FF ;">
                     <section class="panel" style="background-color: #292b2c;">
                       <header class="panel-heading">
                          
                       </header>
                       <div class="panel-body text-center">
-                          <canvas id="myChartradar" height="300" width="450"></canvas>
+                          <canvas id="myChartpolar" height="300" width="450"></canvas>
                       </div>
                   </section>
                 </div>
@@ -70,7 +71,7 @@
                     
                       </header>
                       <div class="panel-body text-center">
-                          <canvas id="myChartpolar" height="300" width="450"></canvas>
+                          <canvas id="myChartdoughnut" height="300" width="450"></canvas>
                       </div>
                   </section>
                 </div>
@@ -89,21 +90,6 @@
               </div>
               <div class="row">
 
-                  
-                   <!-- Doughnut -->
-                  <div class=" container col-lg-7" style="border:1px solid #6600FF ;">
-                    <section class="panel" style="background-color:  #292b2c;">
-                      <header class="panel-heading">
-                        
-                      </header>
-                      <div class="panel-body text-center">
-                          <canvas id="myChartdoughnut" height="300" width="450"></canvas>
-                      </div>
-                  </section>
-                </div>
-                  <!-- Doughnut -->
-                  
-                  
               </div>
           </div>
           
@@ -344,56 +330,7 @@
           }
         }
       });
-      let radarChart = new Chart(myChartradar, {
-        type:'radar', // bar, horizontalBar, pie, line, doughnut, radar, polarArea
-        data:{
-          labels:ro,
-          datasets:[{
-            
-            data:co,
-            //backgroundColor:'green',
-            backgroundColor:[
-              'rgba(255, 99, 132, 0.6)',
-              'rgba(54, 162, 235, 0.6)',
-              'rgba(255, 206, 86, 0.6)',
-              'rgba(75, 192, 192, 0.6)',
-              'rgba(153, 102, 255, 0.6)',
-              'rgba(255, 159, 64, 0.6)',
-              '#AED6F1'
-            ],
-            borderWidth:1,
-            borderColor:'#777',
-            hoverBorderWidth:3,
-            hoverBorderColor:'#000'
-          }]
-        },
-        options:{
-          title:{
-            display:true,
-            text:'Radar Chart',
-            fontColor:'#FFF',
-            fontSize:25
-          },
-          legend:{
-            display:false,
-            position:'right',
-            labels:{
-              fontColor:'white'
-            }
-          },
-          layout:{
-            padding:{
-              left:50,
-              right:0,
-              bottom:0,
-              top:0
-            }
-          },
-          tooltips:{
-            enabled:true
-          }
-        }
-      });
+    
       let lineCharty = new Chart(myChartyear, {
         type:'line', // bar, horizontalBar, pie, line, doughnut, radar, polarArea
         data:{

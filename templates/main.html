@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
         <link rel="shortcut icon" href="{{ url_for('static',filename='favicon.ico') }}">
         <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
         <link rel="stylesheet" href="/static/css/style.css">
         <script src="https://unpkg.com/scrollreveal@4.0.0/dist/scrollreveal.min.js"></script>
         
         
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
         <!-- Font Awesome -->
@@ -20,17 +22,18 @@
         rel="stylesheet"
         />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
-        
+        <link href="https://fonts.googleapis.com/css2?family=Fjalla+One&display=swap" rel="stylesheet">
         
       </head>
       <header>
+        
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
           <div class="container-fluid m-2">
-            <a class="navbar-brand" href="/home">X-Pense Tracker</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <a class="navbar-brand" href="/home" style="font-family: 'Fjalla One', sans-serif;">X-Pense</a>
+            <button class="navbar-toggler toggler-example" type="button" data-toggle="collapse" data-target="#navbarSupportedContent1" aria-controls="navbarSupportedContent1" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <div class="collapse navbar-collapse" id="navbarSupportedContent1">
               <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item active">
                   <a class="nav-link" href="/home">Home <span class="sr-only">(current)</span></a>
@@ -99,24 +102,23 @@
           </div>
         </div>
       </section>
-      <section style="background-color: #8AB2E0" class="text-light p-5">
-        <div class="container">
-          <div class="d-md-flex justify-content-between align-items-center">
-            <h3 class="text-dark mb-3 mb-md-0">We Value Your Feedback</h3>
-  
-            <div class="mx-4 input-group mb-3">
-              <input type="text" class="form-control" placeholder="Enter Your Username" aria-label="Username" aria-describedby="basic-addon2">
-    
-            </div>   
-            <div class="mx-3 input-group mb-3">
-              <input type="text" class="form-control" placeholder="Enter Your Feedback" aria-label="Feedback" aria-describedby="basic-addon1">  
-            </div> 
-            <button class="mb-3 btn btn-dark" type="button">Submit</button>  
-                  
+      <section style="background-color: #8AB2E0" class="feed text-light p-5">
+          <div class="container">
+            <form action='/feedback' method="POST">
+            <div class="d-md-flex justify-content-between align-items-center">
+              <h3 class="text-dark mb-3 mb-md-0 m-2">We Value Your Feedback</h3> 
+              <div class="input-group news-input">
+                <input type="text" name='name' class="form-control m-2" placeholder="Enter Your Name" >
+              </div> 
+              <div class="input-group news-input">
+                <input type="text" name='feedback' class="form-control m-2" placeholder="Enter Your Feedback" >
+              </div> 
+              <button class="btn btn-dark m-2 " type="submit">Submit</button>  
+                    
+            </div>
+          </form>
           </div>
           
-        </div>
-        
       </section>
       <section style="font-family: 'Comic Neue', cursive;"class="p-5">
         <div class="container">
@@ -128,7 +130,7 @@
 
           <div style="padding-bottom: 30px;"class=" row text-center g-4">
             <div class="col-md">
-              <div style="background-color: #F3CCB8"class="fcd card text-dark">
+              <div style="background-color: #F3CCB8"class="fcd card text-dark h-100">
                 <div class="card-body text-center">
                   <div class="h1 mb-3">
                     <i class="bi bi-people"></i>
@@ -143,7 +145,7 @@
             </div>
             <div class="col-md">
               <div style="background-color: #C5D0EB"class="scd card text-dark">
-                <div class="card-body text-center">
+                <div class="card-body text-center h-100">
                   <div class="h1 mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-coin" viewBox="0 0 16 16">
                       <path d="M5.5 9.511c.076.954.83 1.697 2.182 1.785V12h.6v-.709c1.4-.098 2.218-.846 2.218-1.932 0-.987-.626-1.496-1.745-1.76l-.473-.112V5.57c.6.068.982.396 1.074.85h1.052c-.076-.919-.864-1.638-2.126-1.716V4h-.6v.719c-1.195.117-2.01.836-2.01 1.853 0 .9.606 1.472 1.613 1.707l.397.098v2.034c-.615-.093-1.022-.43-1.114-.9H5.5zm2.177-2.166c-.59-.137-.91-.416-.91-.836 0-.47.345-.822.915-.925v1.76h-.005zm.692 1.193c.717.166 1.048.435 1.048.91 0 .542-.412.914-1.135.982V8.518l.087.02z"/>
@@ -160,12 +162,12 @@
               </div>
             </div>
             <div class="col-md">
-              <div style="background-color:#A8C898;"class="tcd card text-dark">
+              <div style="background-color:#A8C898;" class="fcd card text-dark h-100">
                 <div class="card-body text-center">
                   <div class="h1 mb-3">
                     <i class="bi bi-graph-up"></i>
                   </div>
-                  <h3 class="card-title mb-3">Analysis</h3>
+                  <h3 class="card-title mb-3">Analytics</h3>
                   <p style="font-weight: 300;"class="card-text">
                     We provide an insight into your spending habits using which can help in managing your wealth more efficiently.
                   </p>
@@ -176,40 +178,66 @@
           </div>
         </div>
       </section>
-      <hr style="color: white;">
+      <hr style="color:white">
         
     </body>
     <footer class="bg-dark text-white">
       <!-- Grid container -->
-      <section class="p-5">
-        <div class="container">
-          <div class="row g-4">
-            <div class="contact col-md">
-              <h2 class="text-center mb-4">Contact Info</h2><hr style="left: 50%;right: 50%;">
-              <ul class="list-group list-group-flush lead">
-                <li class="list-group-item bg-dark">
-                  <span class="fw-bold text-white">Main Location: </span><span class="text-white">31st Main street Carrera 80,Bosa, Bogotá, Colombia</span>
-                </li><br>
-                <li class="list-group-item bg-dark">
-                  <span class="fw-bold text-white">Phone Number: </span><span class="text-white">+57-8786545675</span>
-                </li><br>
-                <li class="list-group-item bg-dark">
-                  <span class="fw-bold text-white">E-Mail: </span><span class="text-white">noreplyflaskblog@gmail.com</span>
-                </li><br>
-                <li class="list-group-item bg-dark">
-                  <span class="fw-bold text-white">Website: </span><span class="text-white">www.testpurposelink.com</span>
-                </li>
-                
-              </ul>
-            </div>
-            <div class="col-md">
-              <div class="map">
-                <iframe style="border-radius: 20px;" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5375.890915293896!2d-74.1789501215042!3d4.612265472640265!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f9bfd2da6cb29%3A0x239d635520a33914!2sBogot%C3%A1%2C%20Bogota%2C%20Colombia!5e0!3m2!1sen!2sin!4v1624976319078!5m2!1sen!2sin" width="520" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+      <div class="container-fluid mt-3 mb-5">
+
+        <!-- Section: Block Content -->
+        <section class="mb-4">
+      
+          <style>
+            .map-container {
+              overflow: hidden;
+              position: relative;
+              height: 0;
+            }
+      
+            .map-container iframe {
+              left: 0;
+              top: 0;
+              height: 100%;
+              width: 100%;
+              position: absolute;
+            }
+          </style>
+      
+          <div class="contact card bg-dark">
+      
+            <div class="row">
+              <div class="col-md-6">
+      
+                <!-- Google Maps -->
+                <div id="map" class="map-container rounded-left d-none d-sm-block" style="height: 400px">
+                  <iframe style="filter: invert(90%);"class="bg-dark "src="https://maps.google.com/maps?q=Seattle&t=&z=13&ie=UTF8&iwloc=&output=embed" frameborder="0"
+                     allowfullscreen></iframe>
+                </div>
+                <!-- Google Maps -->
+      
+              </div>
+              
+      
+              <div class="col-10 col-md-4 mx-auto align-self-center py-4 text-center text-sm-start">
+                <h1 class="display-5">Contact Info</h1><hr class="d-none d-sm-block"style="width: 50%;">
+      
+                <h6 class="font-weight-bold text-secondary text-uppercase small">Head Office</h6>
+                <h5 class="font-weight-normal mb-4 text-light">Seattle, WA</h5>
+                <p class="text-white font-weight-light"><i class="fas fa-map-marker-alt fa-1x blue-text"></i><a style="text-decoration: none;"class="text-light"target="_blank" href="https://www.google.com/maps/place/Seattle,+WA/@47.60612,-122.325249,13z/data=!4m5!3m4!1s0x5490102c93e83355:0x102565466944d59a!8m2!3d47.6062095!4d-122.3320708?hl=en-US">   2651 Main Street, Suit 124<br>Seattle, WA, 98101</a></p>
+                <p class="text-white font-weight-light mb-0"> <i class="fas fa-phone fa-1x blue-text"></i>   Phone: +1 987 123 6548<br><i class="fas fa-envelope fa-1x blue-text"></i>  Email: noreplyflaskblog@gmail.com<br><i class="fab fa-internet-explorer fa-1x blue-text"></i>  Website: www.testpurposelink.com
+                <br><i class="fas fa-fax fa-1x blue-text"></i>  Fax No: +57-212-9876543 </p>
+
+      
               </div>
             </div>
+      
           </div>
-        </div>
-      </section>
+      
+        </section>
+        <!-- Section: Block Content -->
+      
+      </div>
       
         <!-- Section: Social media -->
         <hr>
@@ -250,8 +278,7 @@
     
       <!-- Copyright -->
       <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-        © 2021 Copyright:
-        <a class="text-white" href="https://mdbootstrap.com/">X-Pense Tracker</a>
+        © 2021 Copyright: X-Pense Tracker
       </div>
       <!-- Copyright -->
     </footer>
@@ -319,9 +346,8 @@
     });
     sr.reveal('.contact',{
       duration:1000,
-      origin:'left',
-      distance:'150%',
-      opacity:null
+      delay:500,
+      
     });
     sr.reveal('.socialm',{
     
@@ -329,6 +355,12 @@
       delay:500,
       origin:'bottom',
   });
+  sr.reveal('.feed',{
+    
+    duration: 1000,
+    delay:1000,
+    origin:'bottom',
+});
   </script>
 
 </html>
