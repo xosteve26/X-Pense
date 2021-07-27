@@ -212,7 +212,7 @@
       {% if d_m %}
     
     
-    <span style="width: 250px;height: 50px;">
+    <span style="float: left;"class="m-2">
         
         <button type="button" class="btn btn-outline-warning" data-toggle="modal" data-target=".bd-choose-modal-sm">Choose Budget Month</button>
     </span>  
@@ -220,25 +220,22 @@
        
     {% endif %}
     {% if budget and total %}
-    <span style="width: 250px;height: 50px;float: right;">
+    <span style="float: right;"class="m-2">
       <a href="{{url_for('email_transaction')}}"><button type="submit" class="btn btn-success m-1 " >Email Transactions</button></a>
     </span>
-  
-    <span style="width: 250px;height: 50px;float: right;">
-     
-        <a href="{{url_for('download_transactions')}}"><button type="submit" class="btn btn-success m-1 " >Download Transactions</button></a>  
-        
-    
+    <span style="float: right;"class="m-2">
+      <a href="{{url_for('download_transactions')}}"><button type="submit" class="btn btn-success m-1 " >Download Transactions</button></a>  
     </span>
+    
+  
+    
     
 
     {% endif %}
 
     </div>
-    
-    
-            
-            <table class="table table-dark table-striped table-hover container">
+        <div class="table-responsive-sm bg-dark text-white" style="color: white;">
+            <table style="background-color: #212529;"class="table table-dark table-striped table-hover container" id="myTable">
               <thead>
                 <tr>
                   <th scope="col" >Sl.No</th>
@@ -345,6 +342,7 @@
                   {% endfor %}
             
             </table>
+          </div>
 <!-- ALL OF THE REQUIRED MODALS -->
 
             <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -479,6 +477,18 @@
      
         });
     </script>
+    <script type="text/javascript">
+    if ( $.fn.dataTable.isDataTable( '#myTable' ) ) {
+    table = $('#myTable').DataTable();
+      }
+    else {
+      table = $('#myTable').DataTable( {
+        paging: true,
+      } );
+    }
+      </script>
+      
+  
   {% endblock js %}
          
             

@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, redirect, sessions, url_for, session,flash, Response,json
-from flask_mysqldb import MySQL
 import psycopg2,psycopg2.extras
 import csv
 import bcrypt
@@ -24,14 +23,9 @@ def start_db():
     return conn
 start_db()
 
-
-
 app.secret_key = 'a'
 app.config['DATABASE_URL']=os.environ.get('DATABASE_URL')
 
-
-
-mysql = MySQL(app)
 
 def get_expense(a,b):
     conn=start_db()
@@ -185,11 +179,8 @@ def dashboard():
         try:
             #To obtain the expense details for a particualar month of the user
             data=get_expense(str(session['id']),session['b_m'])
-            #cursor.execute('SELECT ex_id,amount,category,date,description FROM public.expense_a WHERE id=%s AND ym=%s ORDER BY date DESC', (str(session['id']),session['b_m'],  ))
-            #data=cursor.fetchall()
-            
+
         except KeyError:
-           
             pass
     
         try:
@@ -204,9 +195,6 @@ def dashboard():
         try:
             #To obtain the sum of all the expenses for a particular month
             total=get_sum(str(session['id']), session['b_m'])
-            #cursor.execute('SELECT SUM(amount) AS tsum FROM public.expense_a WHERE id=%s AND ym=%s', (str(session['id']), session['b_m']))
-            #total=cursor.fetchone()
-         
             session['total']=total.tsum
    
         except KeyError:
@@ -273,11 +261,7 @@ def switch_month(mon):
   
     #Retrieve expense details for a particualr month
     data=get_expense(str(session['id']), mon)
-    #cursor.execute('SELECT ex_id,amount,category,date,description FROM public.expense_a WHERE id=%s AND ym=%s ORDER BY date DESC', (str(session['id']), mon ))
-    #data=cursor.fetchall()
-    
-    
-  
+
     #Obtain the budget amount for a particular month
     cursor.execute('SELECT bamount FROM public.budget WHERE id=%s AND b_month LIKE %s', (session['id'], mon,))
     b=cursor.fetchone()
@@ -289,10 +273,6 @@ def switch_month(mon):
 
     #Obtain the total for the expenses corresponding to the month
     total=get_sum(str(session['id']), mon)
-    #cursor.execute('SELECT SUM(amount) AS tsum FROM public.expense_a WHERE id=%s AND ym=%s', (str(session['id']), mon))
-    #total=cursor.fetchone()
-    
- 
     session['total']=str(total.tsum)
    
     #To obtian the name of the budget month
@@ -397,15 +377,10 @@ def expense():
  
     
     data=get_expense(str(session['id']), session['s_m'])
-    #cursor.execute('SELECT ex_id,amount,category,date,description FROM public.expense_a WHERE id=%s AND ym=%s', (str(session['id']), session['s_m'], ))
-    #data=cursor.fetchall()
+ 
     
    
-    total=get_sum(str(session['id']),session['s_m'])
-    #cursor.execute('SELECT SUM(amount) AS tsum FROM public.expense_a WHERE id=%s AND ym=%s', (str(session['id']),session['s_m'], ))
-    #total=cursor.fetchone()
-    
-   
+    total=get_sum(str(session['id']),session['s_m'])   
     session['total']=str(total.tsum)
    
     
@@ -417,8 +392,6 @@ def expense():
     bud=session['budget']
    
     if check:
-     
-
         if data:
             if session['s_m']:
                 flash(u"Expense has been added","success")
@@ -491,10 +464,7 @@ def delete():
     conn=start_db()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.NamedTupleCursor)
     cursor.execute('DELETE FROM expense_a WHERE ex_id = %s ', (da, ))
-    conn.commit()
-    #cursor.execute('SELECT ex_id,amount,category,date,description FROM expense_a WHERE id=%s', (str(session['id']), ))
-    #data=cursor.fetchall()
-    
+    conn.commit()    
     try:
         return redirect(url_for('switch_month',mon=session['s_m']),code=301)
     except:
@@ -508,8 +478,6 @@ def download_transactions():
    
         cursor = conn.cursor(cursor_factory=psycopg2.extras.NamedTupleCursor)
         result=get_expense(str(session['id']), session['s_m'])
-        #cursor.execute('SELECT amount,category,date,description FROM public.expense_a WHERE id=%s AND ym=%s', (str(session['id']), session['s_m'] ))
-        #result=cursor.fetchall()
         
         output=io.StringIO()
         writer=csv.writer(output)
@@ -671,7 +639,6 @@ def feedback():
     if request.method == 'POST':
         name=request.form['name']
         feedback=request.form['feedback']
-        print(feedback)
    
         message = Mail(
         from_email='noreplyflaskblog1@gmail.com',
