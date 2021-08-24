@@ -18,7 +18,7 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True}
 def start_db():
 
     conn = psycopg2.connect(
-    database="dafbundbqku1bs", user=os.environ.get('db_username'), password=os.environ.get('db_password'), host=os.environ.get('db_host'), port= os.environ.get('db_port')
+    database=os.environ.get('db_name'), user=os.environ.get('db_username'), password=os.environ.get('db_password'), host=os.environ.get('db_host'), port= os.environ.get('db_port')
     )
     return conn
 start_db()
@@ -119,33 +119,35 @@ def login():
         cursor = conn.cursor(cursor_factory=psycopg2.extras.NamedTupleCursor)
         cursor.execute('SELECT password FROM public.user WHERE username=%s ',(username,))
         h_p = cursor.fetchone()
+        #To check if an account with the entered details exist in the database
+        if h_p:
+            #Below if is executed for when hashed password was obtained for the entered username
+            if h_p.password:
         
-        #Below if is executed for when hashed password was obtained for the entered username
-        if h_p.password:
-     
-            a=bcrypt.checkpw(password.encode('utf-8'),h_p.password.encode('utf-8'))
-            #The following if condition is executed for when hash password doesnt match the password entered
-            if a == False:
-                msg="Password is incorrect"
-                return render_template('main.html', msg=msg)
-            #else condition is executed for when password entered matches the hashed password then else block is executed
-            else:
-          
-                cursor.execute('SELECT * FROM public.user WHERE username=%s AND password=%s', (username, h_p.password ))
-                account = cursor.fetchone()
-          
-                cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-                session['loggedin'] = True
-                session['id'] = account.id
-                session['username'] = account.username
-                session['email']=account.email
-                msg = 'Logged in successfully !'
-         
-                return render_template('main.html', msg=msg)
-        #The below else block is executed for when the query wasnt able to obtain the password for the username entered           
+                a=bcrypt.checkpw(password.encode('utf-8'),h_p.password.encode('utf-8'))
+                #The following if condition is executed for when hash password doesnt match the password entered
+                if a == False:
+                    msg="Password is incorrect"
+                    return render_template('main.html', wa=msg)
+                #else condition is executed for when password entered matches the hashed password then else block is executed
+                else:
+            
+                    cursor.execute('SELECT * FROM public.user WHERE username=%s AND password=%s', (username, h_p.password ))
+                    account = cursor.fetchone()
+            
+                    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+                    session['loggedin'] = True
+                    session['id'] = account.id
+                    session['username'] = account.username
+                    session['email']=account.email
+                    msg = 'Logged in successfully !'
+            
+                    return render_template('main.html', msg=msg)
+        #The below else block is executed for when the query wasn't able to obtain the password for the username entered             
         else:
             msg="Account doesn't exist"
-            return render_template('main.html', msg=msg)
+            return render_template('main.html', wa=msg)
+
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
@@ -164,7 +166,6 @@ def dashboard():
          
         
             session['y_r']=b_m.b_month.split('-')[0]
-            #b_m.b_month=b_m.b_month.split('-')[1]
             
             session['b_m']=b_m.b_month
             session['s_m']=b_m.b_month
