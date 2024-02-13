@@ -17,9 +17,62 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True}
 
 def start_db():
 
-    conn = psycopg2.connect(
-    database=os.environ.get('db_name'), user=os.environ.get('db_username'), password=os.environ.get('db_password'), host=os.environ.get('db_host'), port= os.environ.get('db_port')
-    )
+    conn = None
+    cursor = None
+
+    try:
+        # Connect to the database
+        conn = psycopg2.connect(
+            database=os.environ.get('db_name'),
+            user=os.environ.get('db_username'),
+            password=os.environ.get('db_password'),
+            host=os.environ.get('db_host'),
+            port=os.environ.get('db_port')
+        )
+
+        # Create a cursor
+        cursor = conn.cursor()
+
+        # Check if the "public.user" table exists
+        create_table_sql = """
+            CREATE TABLE IF NOT EXISTS public.user (
+                id SERIAL PRIMARY KEY,
+                username VARCHAR(255) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL
+            );
+        """
+
+        create_budget_table_sql = """
+            CREATE TABLE IF NOT EXISTS public.budget (
+            sl_no SERIAL PRIMARY KEY,
+            id INTEGER NOT NULL,
+            bamount INTEGER NOT NULL,
+            b_month CHARACTER VARYING(255) NOT NULL
+            );
+        """
+
+        create_expense_a_table_sql = """
+            CREATE TABLE IF NOT EXISTS public.expense_a (
+            ex_id SERIAL PRIMARY KEY,
+            id INTEGER NOT NULL,
+            amount INTEGER NOT NULL,
+            category CHARACTER VARYING(255) NOT NULL,
+            date DATE NOT NULL,
+            description CHARACTER VARYING(255),
+            ym CHARACTER VARYING(255) NOT NULL
+            );
+        """
+        
+
+        cursor.execute(create_table_sql)
+        cursor.execute(create_budget_table_sql)
+        cursor.execute(create_expense_a_table_sql)
+        conn.commit()  # Commit changes if the table was created
+
+    except (Exception, psycopg2.Error) as error:
+        print("Error while connecting to PostgreSQL", error)
+
     return conn
 start_db()
 
@@ -60,6 +113,7 @@ def home():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+   
     msg=''
     if request.method == 'POST':
         username=request.form['uname']
@@ -141,6 +195,7 @@ def login():
                     session['username'] = account.username
                     session['email']=account.email
                     msg = 'Logged in successfully !'
+                    print("SESSION LOGIN",session)
             
                     return render_template('main.html', msg=msg)
         #The below else block is executed for when the query wasn't able to obtain the password for the username entered             
@@ -151,6 +206,7 @@ def login():
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
+    print("DASH",session)
     wa=''
     conn=start_db()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.NamedTupleCursor)
